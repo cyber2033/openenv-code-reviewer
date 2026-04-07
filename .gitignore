@@ -1,0 +1,48 @@
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.venv/
+env/
+venv/
+ENV/
+bin/
+lib/
+share/
+Include/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# Node / Dashboard
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.next/
+dashboard/out/
+dashboard/build/
+.eslintcache
+
+# Logs & OS
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# Project Specific
+tasks_dump.json
+episodes/*.json
+leaderboard.json

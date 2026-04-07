@@ -1,0 +1,113 @@
+:root {
+  --bg: #f4ede2;
+  --surface: rgba(255, 251, 244, 0.72);
+  --panel-border: rgba(34, 43, 40, 0.09);
+  --text-main: #2b241c;
+  --text-soft: #5f5347;
+  --text-muted: #8b7b69;
+  --accent-ink: #1f7668;
+  --accent-strong: #d97c30;
+  --success: #1b7a57;
+  --warning: #a95f12;
+  --danger: #b5483f;
+  --radius-xl: 28px;
+  --radius-lg: 20px;
+  --shadow-soft: 0 28px 80px rgba(74, 58, 40, 0.12);
+  --font-display: 'Aptos Display', 'Trebuchet MS', 'Segoe UI Variable', sans-serif;
+  --font-body: 'Aptos', 'Segoe UI Variable', Calibri, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+
+  color: var(--text-main);
+  background:
+    radial-gradient(circle at top left, rgba(217, 124, 48, 0.12), transparent 24%),
+    radial-gradient(circle at top right, rgba(31, 118, 104, 0.12), transparent 28%),
+    linear-gradient(180deg, #f8f3eb 0%, var(--bg) 100%);
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100svh;
+  margin: 0;
+  color: var(--text-main);
+  background: transparent;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  border: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--text-main);
+  font-family: var(--font-display);
+  line-height: 1.05;
+}
+
+h1 {
+  font-size: clamp(3rem, 6vw, 5rem);
+  letter-spacing: -0.05em;
+}
+
+h2 {
+  font-size: clamp(1.3rem, 2vw, 1.75rem);
+  letter-spacing: -0.03em;
+}
+
+h3 {
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+p {
+  line-height: 1.6;
+}
+
+code {
+  font-family: var(--font-mono);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(97, 85, 71, 0.26);
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.25);
+}

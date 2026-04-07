@@ -1,0 +1,33 @@
+name: "AI Code Review Environment"
+version: "1.2.0"
+description: "This project is an AI evaluation system where an agent reviews code, finds bugs, and is scored based on accuracy."
+author: "your-name"
+reward_range: [0.0, 1.0]
+max_steps: 10
+tasks:
+  - name: easy
+    description: "Single function Python bug detection"
+    max_steps: 6
+  - name: medium
+    description: "Flask security vulnerability review"
+    max_steps: 8
+  - name: hard
+    description: "Multi-file PR diff review"
+    max_steps: 10
+action_space:
+  type: object
+  properties:
+    line: {type: integer}
+    severity: {type: string, enum: [critical, high, medium, low]}
+    category: {type: string, enum: [security, logic, null_check, type_error, performance, style]}
+    message: {type: string}
+    fix: {type: string}
+    done: {type: boolean}
+observation_space:
+  type: object
+  properties:
+    diff: {type: string}
+    filename: {type: string}
+    step: {type: integer}
+    max_steps: {type: integer}
+    current_score: {type: number}
