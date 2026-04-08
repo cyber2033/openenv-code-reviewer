@@ -1,3 +1,12 @@
+---
+title: OpenEnv AI Code Reviewer
+emoji: 🚀
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 8000
+---
+
 # OpenEnv: AI Code Review Environment 🚀
 
 > **"A benchmark environment that tests how well AI agents can review code and find bugs — just like a senior engineer reviews a pull request."**
