@@ -356,5 +356,5 @@ async def startup_event():
 
 if __name__ == "__main__":
     import uvicorn
-    # Use 127.0.0.1 specifically to avoid IPv6 issues on some Windows setups
-    uvicorn.run(app, host="127.0.0.1", port=7860, log_level="info")
+    # Use 0.0.0.0 to allow external traffic in Docker environment
+    uvicorn.run(app, host="0.0.0.0", port=7860, log_level="info")
