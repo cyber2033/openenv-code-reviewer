@@ -9,6 +9,7 @@ RUN npm run build
 # Stage 2: Serve with Python
 FROM python:3.11-slim
 WORKDIR /app
+ENV PYTHONPATH=/app/code-review-env
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -30,4 +31,4 @@ EXPOSE 7860
 
 # Command to run the application
 # We use uvicorn to start the server
-CMD ["python", "-m", "uvicorn", "code-review-env.server.main:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["python", "-m", "uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "7860"]

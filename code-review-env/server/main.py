@@ -15,7 +15,7 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 
 from fastapi import Body, FastAPI, HTTPException, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -182,9 +182,9 @@ async def health():
     return {"status": "ok", "openai_active": o_active, "gemini_active": g_active, "version": "1.1.0"}
 
 @app.post("/reset", response_model=ResetResult)
-async def reset(req: ResetRequest = Body(...)):
-    task_name = req.task_name or "easy_001"
-    state["model_name"] = req.model_name or "gemini-1.5-flash"
+async def reset(req: ResetRequest | None = Body(default=None)):
+    task_name = (req.task_name if req else None) or "easy_001"
+    state["model_name"] = (req.model_name if req else None) or "gemini-1.5-flash"
     state["episode_id"] = str(uuid.uuid4())
     selected, t_type = select_task(task_name)
     reset_runtime_state()
@@ -337,23 +337,6 @@ async def export_csv_episodes():
     for ep in episode_history:
         writer.writerow([ep["episode_id"], ep["task_name"], ep["task_type"], ep["final_score"], ep.get("model_name", ""), ep.get("finished_at", "")])
     return Response(content=output.getvalue(), media_type="text/csv")
-
-@app.post("/reset")
-async def reset_endpoint(payload: dict = Body(None)):
-    reset_runtime_state()
-    # If a specific task is requested in the reset, we can prepare it here
-    if payload and "task_name" in payload:
-        task_name = payload["task_name"]
-        selected, t_type = select_task(task_name)
-        state["current_diff"] = selected.get("diff", "")
-        state["filename"] = selected.get("filename", "snippet.py")
-        state["task_name"] = task_name
-        state["task_type"] = t_type
-    
-    return {"status": "ok"}
-
-@app.get("/")
-async def root(): return RedirectResponse("/ui/")
 
 @app.on_event("startup")
 async def startup_event():
