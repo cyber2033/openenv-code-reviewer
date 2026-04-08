@@ -30,21 +30,27 @@ from server.custom_api import router as custom_api_router
 
 app = FastAPI(title="AI Code Review Environment", version="1.1.0")
 
-# Mount Static Dashboard (for production/HuggingFace)
-# Correct Dashboard Path: Root/dashboard/dist
-DASHBOARD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "dashboard", "dist")
-if os.path.exists(DASHBOARD_DIR):
-    app.mount("/ui", StaticFiles(directory=DASHBOARD_DIR, html=True), name="ui")
-else:
-    print(f"⚠️ Warning: Dashboard dist not found at {DASHBOARD_DIR}")
-
+# 1. ADD CORS MIDDLEWARE (Critical for Hackathon Validation)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_credentials=False,
 )
+
+# 2. PATHS & STATIC FILES
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DASHBOARD_DIR = os.path.join(BASE_DIR, "dashboard", "dist")
+
+if os.path.exists(DASHBOARD_DIR):
+    app.mount("/ui", StaticFiles(directory=DASHBOARD_DIR, html=True), name="ui")
+else:
+    print(f"Warning: Dashboard directory not found at {DASHBOARD_DIR}")
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return RedirectResponse(url="/ui/")
 
 app.include_router(custom_api_router)
 
