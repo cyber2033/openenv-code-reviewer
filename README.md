@@ -1,21 +1,37 @@
-# AI Code Review Environment 🚀
+# OpenEnv: AI Code Review Environment 🚀
 
-## SECTION 1 - Project Overview
+> **"A benchmark environment that tests how well AI agents can review code and find bugs — just like a senior engineer reviews a pull request."**
 
-**Project Identity:**
-This project is an AI evaluation system where an agent reviews code, finds bugs, and is scored based on accuracy. It provides a high-fidelity, interactive environment for benchmarking AI Agents in the domain of automated code review and security auditing.
+---
 
-**Problem Solved:**
-Traditional static analysis tools often miss subtle logic and security defects that human reviewers find, while general LLMs lack a structured, stateful "playground" to practice and refine their code review capabilities without polluting production repositories.
+## 🎯 Project Overview
 
-**Real-World Use:**
-In a professional setting, this system serves as a training ground for developer-centric AI assistants and a benchmarking tool for companies to evaluate which LLM is safest for automated PR reviews before deploying them to their CI/CD pipelines.
+### Main Purpose
+Our project creates a standardized arena where AI agents are evaluated on their ability to perform real-world code review. The agent reads buggy code diffs, identifies problems, and submits structured bug reports. A deterministic grader then scores the agent based on how accurately it found real bugs compared to ground truth annotations.
 
-**Impact on AI Research:**
-For AI research, it provides a "Code Review RL Environment" where agents can be trained using reward signals based on precision, recall, and severity alignment, moving beyond simple next-token prediction towards goal-oriented reasoning.
+### Why It Exists
+Every software company in the world needs code review. Senior engineers spend hours every day reading pull requests, finding bugs, and suggesting fixes. This is expensive, slow, and doesn't scale. Our environment trains and evaluates AI agents to do this job automatically — and measures exactly how good they are at it.
 
-**One Line Elevator Pitch:**
-The "Gold Standard" testbed for turning LLMs into expert-level security auditors through structured feedback loops and real-time telemetry.
+### What It Proves
+```text
+Given a piece of buggy code
+can an AI agent find the bugs
+the same way a human engineer would?
+
+Our environment answers that question
+with a score from 0.0 to 1.0
+across three difficulty levels
+easy, medium, and hard.
+```
+
+### Real World Value
+*   **GitHub** → uses this to train Copilot review
+*   **Meta** → uses this to review internal PRs
+*   **Google** → uses this to catch security bugs
+*   **Startups** → use this instead of hiring reviewers
+
+### Official Pitch
+This project is an OpenEnv-compatible reinforcement learning environment designed to benchmark AI agents on automated code review. Agents receive code diffs containing real bugs across three difficulty tiers — logic errors, security vulnerabilities, and complex multi-file PR issues. Each agent action is a structured bug report containing line number, severity, category, and fix suggestion. A deterministic grader scores every action against ground truth annotations and returns a reward signal between 0.0 and 1.0. The environment includes a live React dashboard for real-time telemetry, a leaderboard for multi-agent comparison, and a replay system for episode analysis. The goal is to provide the AI research community with a rigorous, reproducible benchmark for evaluating code review capability in large language models.
 
 ---
 

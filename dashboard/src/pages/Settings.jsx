@@ -49,10 +49,10 @@ export default function Settings() {
   const checkApi = async () => {
     setApiCheck({ loading: true, result: null })
     try {
-      const data = await requestJson('/api/custom/hello')
+      const data = await requestJson('/health')
       setApiCheck({ loading: false, result: data })
     } catch (err) {
-      setApiCheck({ loading: false, result: { message: err.message, api_key_configured: false } })
+      setApiCheck({ loading: false, result: { status: 'error', openai_active: false, gemini_active: false } })
     }
   }
 
@@ -79,7 +79,6 @@ export default function Settings() {
         </article>
       </div>
 
-      {/* Runtime config */}
       {/* API config */}
       <article className="card">
         <div className="card-header">
@@ -94,9 +93,17 @@ export default function Settings() {
         <div className="settings-grid">
           <ConfigRow 
             label="Gemini API" 
-            value={apiCheck.result ? (apiCheck.result.api_key_configured ? '✅ Configured' : '❌ Not Configured') : 'Click Check to verify'} 
+            value={apiCheck.result ? (apiCheck.result.gemini_active ? '✅ Connected' : '❌ Not Configured') : 'Click Check to verify'} 
           />
-          {apiCheck.result && <div style={{ padding: '10px 0', fontSize: '0.85rem', color: 'var(--muted)' }}>{apiCheck.result.message}</div>}
+          <ConfigRow 
+            label="OpenAI API" 
+            value={apiCheck.result ? (apiCheck.result.openai_active ? '✅ Connected' : '❌ Not Configured') : 'Click Check to verify'} 
+          />
+          {!apiCheck.result?.gemini_active && !apiCheck.result?.openai_active && apiCheck.result && (
+            <p style={{ padding: '12px 0 0', fontSize: '0.85rem', color: 'var(--red)', margin: 0 }}>
+              Verify your API keys in the <code>.env</code> file and restart the backend.
+            </p>
+          )}
         </div>
       </article>
 
@@ -111,7 +118,21 @@ export default function Settings() {
         </div>
         <div className="settings-grid">
           <ConfigRow label="Server URL" value={configSummary.serverUrl} />
-          <ConfigRow label="Model name" value={configSummary.modelName} />
+          
+          {/* Interactive Model Selector */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 0', borderBottom: '1px solid var(--line)' }}>
+             <span style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>Reviewer model</span>
+             <select 
+               className="ghost-button" 
+               style={{ background: 'var(--panel-soft)', border: '1px solid var(--line)', padding: '6px 12px', borderRadius: 10, fontSize: '0.88rem', fontWeight: 600, color: 'var(--text)' }}
+               value={settings.modelName || 'gemini-1.5-flash'}
+               onChange={(e) => updateSetting('modelName', e.target.value)}
+             >
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                <option value="gpt-4o-mini">GPT-4o Mini</option>
+             </select>
+          </div>
+
           <ConfigRow label="Max steps — easy" value={configSummary.maxSteps?.easy} />
           <ConfigRow label="Max steps — medium" value={configSummary.maxSteps?.medium} />
           <ConfigRow label="Max steps — hard" value={configSummary.maxSteps?.hard} />

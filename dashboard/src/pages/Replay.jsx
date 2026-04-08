@@ -200,6 +200,11 @@ export default function Replay() {
                   <p style={{ margin: 0, color: 'var(--text)', fontSize: '1.05rem', fontWeight: 500 }}>
                     {currentStep.message || 'No message recorded for this step.'}
                   </p>
+                  {currentStep.reason && (
+                    <p style={{ fontSize: '0.9rem', fontStyle: 'italic', color: 'var(--muted)', marginTop: 12 }}>
+                      <strong>Judge's Verdict:</strong> {currentStep.reason}
+                    </p>
+                  )}
                   {currentStep.fix && (
                     <div style={{ marginTop: 16, padding: 16, background: 'white', borderRadius: 12, border: '1px solid var(--line)' }}>
                        <span className="metric-label" style={{ fontSize: '0.65rem', display: 'block', marginBottom: 4 }}>Proposed Fix</span>

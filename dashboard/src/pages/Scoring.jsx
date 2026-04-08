@@ -36,7 +36,18 @@ export default function Scoring() {
   return (
     <section className="page">
       {/* KPI strip */}
-      <div className="grid three">
+      <div className="grid four">
+        <article className="card metric-card">
+          <span className="metric-label">Evaluation Result</span>
+          <strong className="metric-value" style={{ 
+            fontSize: '2.2rem', 
+            color: currentScore >= 0.8 ? 'var(--green)' : currentScore >= 0.5 ? 'var(--amber)' : 'var(--muted)' 
+          }}>
+            {currentScore >= 0.9 ? 'EXCEPTIONAL' : currentScore >= 0.8 ? 'PROFESSIONAL' : currentScore >= 0.5 ? 'RELIABLE' : 'BASELINE'}
+          </strong>
+          <span className="metric-meta">Performance Rating</span>
+        </article>
+
         <article className="card metric-card">
           <span className="metric-label">Current score</span>
           <strong className="metric-value">{formatScore(currentScore)}</strong>

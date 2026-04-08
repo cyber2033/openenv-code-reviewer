@@ -9,6 +9,7 @@ import {
 import Sidebar from './components/Sidebar'
 import ApiDocs from './pages/ApiDocs'
 import DiffViewer from './pages/DiffViewer'
+import LabAudit from './pages/LabAudit'
 import Leaderboard from './pages/Leaderboard'
 import LiveMonitor from './pages/LiveMonitor'
 import Replay from './pages/Replay'
@@ -18,9 +19,14 @@ import TaskExplorer from './pages/TaskExplorer'
 
 const routeMeta = {
   '/': {
-    eyebrow: 'PHASE 1',
-    title: 'AI Code Review Environment',
-    subtitle: 'This project is an AI evaluation system where an agent reviews code, finds bugs, and is scored based on accuracy.',
+    eyebrow: 'BENCHMARK HUB',
+    title: 'AI Code Review Benchmark',
+    subtitle: 'A standardized environment that tests how well AI agents can review code and find bugs — just like a senior engineer reviews a pull request.',
+  },
+  '/lab': {
+    eyebrow: 'CUSTOM SANDBOX',
+    title: 'Custom Security Lab',
+    subtitle: 'Paste and analyze your own code snippets to evaluate LLM security auditing capabilities in real-time.',
   },
   '/diff': {
     eyebrow: 'Review Surface',
@@ -214,6 +220,9 @@ a {
 }
 .grid.three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.grid.four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .grid.sidebar-right {
   grid-template-columns: minmax(0, 1.4fr) minmax(360px, 0.9fr);
@@ -962,6 +971,7 @@ a {
 @media (max-width: 1180px) {
   .grid.two,
   .grid.three,
+  .grid.four,
   .grid.sidebar-right,
   .grid.sidebar-left,
   .split-view,
@@ -989,11 +999,11 @@ a {
   }
 }
 `
-
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LiveMonitor />} />
+      <Route path="/lab" element={<LabAudit />} />
       <Route path="/diff" element={<DiffViewer />} />
       <Route path="/scoring" element={<Scoring />} />
       <Route path="/leaderboard" element={<Leaderboard />} />
@@ -1036,20 +1046,23 @@ function Shell() {
       />
       <main className="main-shell">
         <header className="top-strip">
-          <div>
-            <p className="eyebrow">{meta.eyebrow}</p>
-            <h1 className="page-title">{meta.title}</h1>
+          <div style={{ display: 'grid', gap: 4 }}>
+            <h1 className="page-title">
+              Open<strong style={{ color: 'var(--blue)' }}>{meta.title.replace('OpenEnv', 'Env').replace('Open', '')}</strong>
+            </h1>
             <p className="page-subtitle">{meta.subtitle}</p>
           </div>
 
           <div className="top-strip__meta">
+            {connectionStatus === 'offline' && (
+              <span className="status-pill">
+                <span className="status-dot offline" />
+                <strong>OFFLINE</strong>
+              </span>
+            )}
             <span className="status-pill">
-              <span className={`status-dot ${connectionStatus === 'live' ? 'live' : 'offline'}`} />
-              <strong>{statusText}</strong>
-            </span>
-            <span className="status-pill">
-              Episode
-              <strong>{runState.episode_id || 'Waiting'}</strong>
+              Session
+              <strong>{runState.episode_id ? `SID-${runState.episode_id.slice(0, 8).toUpperCase()}` : 'IDLE'}</strong>
             </span>
             <span className="status-pill">
               Task

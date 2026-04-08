@@ -8,12 +8,14 @@ import {
   Gauge,
   PlayCircle,
   Layers,
+  Zap,
 } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { formatScore, formatTaskLabel, useAppContext } from '../AppContext'
 
 const navItems = [
   { to: '/', label: 'Live Monitor', icon: Activity },
+  { to: '/lab', label: 'Lab Audit', icon: Zap },
   { to: '/diff', label: 'Diff Viewer', icon: FileCode2 },
   { to: '/scoring', label: 'Analytics', icon: Gauge },
   { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
@@ -58,14 +60,34 @@ const sidebarStyles = `
   border-right: 1px solid var(--line);
 }
 .sidebar-logo {
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: var(--text);
-  margin-bottom: 8px;
-  letter-spacing: -0.04em;
+  display: block;
+  width: 100%;
   text-align: left;
-  background: none;
-  padding: 0;
+  padding: 8px 0;
+  margin-bottom: 24px;
+  transition: opacity 0.2s ease;
+}
+.sidebar-logo:hover {
+  opacity: 0.8;
+}
+.logo-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.logo-text {
+  font-size: 1.6rem;
+  font-weight: 300;
+  letter-spacing: -0.05em;
+  color: var(--text);
+  line-height: 1;
+}
+.logo-text strong {
+  font-weight: 800;
+  color: var(--blue);
+}
+.logo-box svg {
+  border-radius: 8px;
 }
 .sidebar-copy {
   margin: 0 0 40px;
@@ -177,12 +199,12 @@ const sidebarStyles = `
     transform: translateX(0);
   }
 }
-`
+`;
 
 export default function Sidebar({ isOpen, onOpen, onClose }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const { connectionStatus, observation, runState, updateSetting } = useAppContext()
+  const { connectionStatus, observation, runState, updateSetting, settings } = useAppContext()
 
   const taskLabel = formatTaskLabel(observation.task_name || observation.task_type)
   const socketTone = connectionStatus === 'live' ? 'live' : 'offline'
@@ -201,7 +223,13 @@ export default function Sidebar({ isOpen, onOpen, onClose }) {
 
       <aside className={`sidebar ${isOpen ? 'is-open' : ''}`}>
         <button type="button" className="sidebar-logo" onClick={() => navigate('/')}>
-          AI Code Review
+          <div className="logo-box">
+            <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="30" height="30" rx="8" fill="black"/>
+              <path d="M12 11L8 16L12 21M20 11L24 16L20 21" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <span className="logo-text">Open<strong style={{ color: 'var(--blue)' }}>Env</strong></span>
+          </div>
         </button>
         <p className="sidebar-copy">
           This project is an AI evaluation system where an agent reviews code, finds bugs, and is scored based on accuracy.
@@ -227,10 +255,10 @@ export default function Sidebar({ isOpen, onOpen, onClose }) {
 
         <div className="sidebar-meta">
           <div className="sidebar-panel">
-            <span className="sidebar-label">Select review model</span>
+            <span className="sidebar-label">AI ENGINE CONFIG</span>
             <select 
               className="sidebar-select"
-              value={runState.model_name || 'gemini-1.5-flash'}
+              value={settings.modelName || 'gemini-1.5-flash'}
               onChange={(e) => updateSetting('modelName', e.target.value)}
             >
               <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>

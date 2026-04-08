@@ -55,9 +55,11 @@ export default function LiveMonitor() {
     comments,
     connectionStatus,
     health,
+    leaderboard,
     observation,
     runState,
-    testEndpoint
+    testEndpoint,
+    refreshLeaderboard
   } = useAppContext()
 
   const handleHint = async () => {
@@ -76,8 +78,12 @@ export default function LiveMonitor() {
       <div className="grid three">
         <article className="card metric-card">
           <span className="metric-label">Performance Score</span>
-          <strong className="metric-value">{Number(observation.current_score || 0).toFixed(3)}</strong>
-          <span className="metric-meta">Session status: {health.status}</span>
+          <strong className="metric-value" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {Number(observation.current_score || 0).toFixed(3)}
+          </strong>
+          <span className="metric-meta" style={{ minHeight: '1.2em' }}>
+            Session status: {health.status}
+          </span>
         </article>
 
         <article className="card metric-card">
@@ -93,7 +99,9 @@ export default function LiveMonitor() {
           <strong className="metric-value" style={{ color: agentStatus === 'RUNNING' ? 'var(--green)' : 'var(--text)' }}>
             {agentStatus === 'RUNNING' ? 'ACTIVE' : agentStatus}
           </strong>
-          <span className="metric-meta">{connectionStatus === 'live' ? 'Synchronized with socket' : 'Reconnecting...'}</span>
+          <span className="metric-meta" style={{ minHeight: '1.2em' }}>
+            {connectionStatus === 'live' ? 'Synchronized with socket' : '\u00A0'}
+          </span>
         </article>
       </div>
 
@@ -113,7 +121,7 @@ export default function LiveMonitor() {
                 <div style={{ padding: 24, background: 'var(--panel-soft)', borderRadius: 20 }}>
                   <span className="metric-label" style={{ fontSize: '0.65rem' }}>Accuracy Signal</span>
                   <div style={{ fontSize: '1.8rem', fontWeight: 800, marginTop: 4 }}>
-                    {runState.success ? 'Success' : runState.done ? 'Missed' : 'Calculating...'}
+                    {agentStatus === 'IDLE' ? 'Ready' : runState.success ? 'Success' : runState.done ? 'Missed' : 'Analyzing...'}
                   </div>
                 </div>
                 <div style={{ padding: 24, background: 'var(--panel-soft)', borderRadius: 20 }}>
@@ -126,7 +134,7 @@ export default function LiveMonitor() {
               <div>
                 <ProgressCard observation={observation} runState={runState} />
                 <div className="stack" style={{ marginTop: 24, gap: 12 }}>
-                  <div className="mini-meta"><span>Session ID:</span> <span style={{ color: 'var(--text)' }}>{runState.episode_id || '---'}</span></div>
+                  <div className="mini-meta"><span>Session ID:</span> <span style={{ color: 'var(--text)' }}>{runState.episode_id ? `SID-${runState.episode_id.slice(0, 8).toUpperCase()}` : '---'}</span></div>
                   <div className="mini-meta"><span>Started At:</span> <span style={{ color: 'var(--text)' }}>{formatDate(runState.started_at) || '---'}</span></div>
                 </div>
               </div>
@@ -166,20 +174,22 @@ export default function LiveMonitor() {
 
           <article className="card">
             <h3>Recent Score Impact</h3>
-            <p style={{ fontSize: '0.92rem', marginBottom: 20 }}>Historical accuracy for the last 5 reviewers on this model.</p>
+            <p style={{ fontSize: '0.92rem', marginBottom: 20 }}>Top 3 historical reviewers currently in the environment.</p>
             <div className="list">
-               <div className="list-item" style={{ padding: '12px 16px', background: 'var(--panel-soft)' }}>
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                   <span style={{ fontWeight: 600 }}>Elite Agent</span>
-                   <span className="text-green">+0.950</span>
+               {leaderboard.length > 0 ? (
+                 leaderboard.slice(0, 3).map((item, idx) => (
+                   <div key={`${item.submission_id}-${idx}`} className="list-item" style={{ padding: '12px 16px', background: idx === 0 ? 'var(--panel-soft)' : 'transparent', border: idx === 0 ? 'none' : '1px solid var(--line)', marginBottom: 8, borderRadius: 12 }}>
+                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                       <span style={{ fontWeight: 600 }}>{item.agent_name}</span>
+                       <span className="text-green">+{Number(item.score).toFixed(3)}</span>
+                     </div>
+                   </div>
+                 ))
+               ) : (
+                 <div className="empty" style={{ padding: 20, textAlign: 'center', fontSize: '0.85rem' }}>
+                   No historical data recorded yet.
                  </div>
-               </div>
-               <div className="list-item" style={{ padding: '12px 16px', border: 'none', background: 'transparent' }}>
-                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                   <span style={{ fontWeight: 600 }}>Standard Audit</span>
-                   <span className="text-green">+0.620</span>
-                 </div>
-               </div>
+               )}
             </div>
           </article>
         </div>

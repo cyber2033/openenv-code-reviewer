@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
-SERVER_URL = os.getenv("SERVER_URL", f"http://127.0.0.1:{os.getenv('BACKEND_PORT', '7860')}")
+SERVER_URL = f"http://127.0.0.1:{os.getenv('BACKEND_PORT', '7860')}"
 
 SYSTEM_PROMPT = (
     "You are an expert code reviewer. Read the code diff carefully.\n"
@@ -76,7 +76,7 @@ class CodeReviewAgent:
         
         try:
             # Reset the environment
-            resp = httpx.post(f"{SERVER_URL}/reset", json={"task_name": task_name}, timeout=30.0)
+            resp = httpx.post(f"{SERVER_URL}/reset", json={"task_name": task_name, "model_name": self.model_name}, timeout=30.0)
             resp.raise_for_status()
             data = resp.json()
             obs = data["observation"]

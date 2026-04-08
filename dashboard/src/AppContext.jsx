@@ -12,7 +12,7 @@ import {
 const API_BASE =
   import.meta.env.VITE_SERVER_URL ||
   (typeof window !== 'undefined' && window.location.port === '5173'
-    ? 'http://localhost:7860'
+    ? `${window.location.protocol}//${window.location.hostname}:7860`
     : '')
 
 const SETTINGS_KEY = 'openenv-dashboard-settings'
@@ -46,6 +46,7 @@ const EMPTY_STATE = {
 const DEFAULT_SETTINGS = {
   hintsEnabled: true,
   llmJudgeEnabled: false,
+  modelName: 'gemini-1.5-flash',
 }
 
 export const taskCatalog = [
@@ -707,13 +708,24 @@ export function AppProvider({ children }) {
     window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
   }, [settings])
 
+  const pushEventRef = useRef(pushEvent)
+  useEffect(() => {
+    pushEventRef.current = pushEvent
+  }, [pushEvent])
+
   useEffect(() => {
     let closed = false
+    const retryRef = { current: null }
 
     const connect = () => {
       if (closed) return
 
-      const target = `${(API_BASE || window.location.origin).replace(/^http/, 'ws')}/ws/events`
+      let host = API_BASE || (typeof window !== 'undefined' ? window.location.origin : '')
+      if (!host.startsWith('http')) host = window.location.origin
+      
+      const target = `${host.replace(/^http/, 'ws')}/ws/events`
+      console.log('[SOCKET] Connecting to:', target)
+      
       const socket = new WebSocket(target)
       socketRef.current = socket
       setConnectionStatus('connecting')
@@ -721,28 +733,33 @@ export function AppProvider({ children }) {
       socket.onopen = () => {
         if (closed) return
         setConnectionStatus('live')
+        console.log('[SOCKET] Connected')
       }
 
-      socket.onerror = () => {
+      socket.onerror = (err) => {
         if (closed) return
+        console.error('[SOCKET] Error:', err)
         setConnectionStatus('offline')
       }
 
       socket.onmessage = (message) => {
         try {
-          pushEvent(JSON.parse(message.data))
-        } catch {
-          return
+          const data = JSON.parse(message.data)
+          if (pushEventRef.current) pushEventRef.current(data)
+        } catch (e) {
+          console.error('[SOCKET] Message error:', e)
         }
       }
 
       socket.onclose = () => {
         if (closed) return
         setConnectionStatus('offline')
+        console.log('[SOCKET] Closed, retrying in 4s...')
         retryRef.current = window.setTimeout(connect, 4000)
       }
     }
 
+    // Initial load
     Promise.allSettled([
       refreshHealth(),
       refreshState(),
@@ -750,6 +767,7 @@ export function AppProvider({ children }) {
       refreshEvents(),
       refreshEpisodes(),
     ])
+    
     connect()
 
     const healthTimer = window.setInterval(refreshHealth, 30000)
@@ -766,7 +784,7 @@ export function AppProvider({ children }) {
       if (retryRef.current) window.clearTimeout(retryRef.current)
       if (socketRef.current) socketRef.current.close()
     }
-  }, [pushEvent, refreshEpisodes, refreshEvents, refreshHealth, refreshLeaderboard, refreshState])
+  }, [refreshEpisodes, refreshEvents, refreshHealth, refreshLeaderboard, refreshState])
 
   const observation = runState.observation || EMPTY_STATE.observation
   const comments = useMemo(
@@ -891,6 +909,7 @@ export function AppProvider({ children }) {
     testEndpoint,
     clearLeaderboard,
     clearReplayHistory,
+    requestJson,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

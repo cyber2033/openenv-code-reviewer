@@ -69,8 +69,11 @@ if /I "%MODE%"=="all" (
 
 if "%OPEN_BROWSER%"=="1" (
     timeout /t 3 /nobreak >nul
-    start "" "%BACKEND_URL%"
-    if /I "%MODE%"=="all" start "" "%FRONTEND_URL%"
+    if /I "%MODE%"=="all" (
+        start "" "%FRONTEND_URL%"
+    ) else (
+        start "" "%BACKEND_URL%"
+    )
 )
 
 echo.
@@ -138,6 +141,20 @@ if errorlevel 1 (
 exit /b 0
 
 :refresh_dataset
+echo.
+echo [INFO] AI Code Review Environment - Phase 1 Launcher
+echo --------------------------------------------------
+
+:: Check for Dashboard Build
+if not exist "dashboard\dist" (
+    echo [INFO] First-time setup: Building dashboard UI...
+    cd dashboard
+    call npm install
+    call npm run build
+    cd ..
+    echo [INFO] Dashboard built successfully.
+)
+
 echo [INFO] Refreshing task datasets...
 pushd "%API_DIR%" >nul
 if errorlevel 1 (

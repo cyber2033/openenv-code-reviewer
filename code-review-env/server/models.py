@@ -57,6 +57,11 @@ class StepResult(BaseModel):
     done: bool
     info: dict[str, Any]
 
+class ResetRequest(BaseModel):
+    model_config = ConfigDict(strict=False)
+    task_name: str | None = None
+    model_name: str | None = "gemini-1.5-flash"
+
 
 class ResetResult(BaseModel):
     model_config = ConfigDict(strict=False)
