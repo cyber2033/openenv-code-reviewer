@@ -339,8 +339,17 @@ async def export_csv_episodes():
     return Response(content=output.getvalue(), media_type="text/csv")
 
 @app.post("/reset")
-async def reset_endpoint():
+async def reset_endpoint(payload: dict = Body(None)):
     reset_runtime_state()
+    # If a specific task is requested in the reset, we can prepare it here
+    if payload and "task_name" in payload:
+        task_name = payload["task_name"]
+        selected, t_type = select_task(task_name)
+        state["current_diff"] = selected.get("diff", "")
+        state["filename"] = selected.get("filename", "snippet.py")
+        state["task_name"] = task_name
+        state["task_type"] = t_type
+    
     return {"status": "ok"}
 
 @app.get("/")
