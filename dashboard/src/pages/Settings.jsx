@@ -163,6 +163,21 @@ export default function Settings() {
             checked={!!settings.llmJudgeEnabled}
             onChange={(v) => updateSetting('llmJudgeEnabled', v)}
           />
+          <div className="toggle-row">
+            <div>
+              <strong style={{ display: 'block' }}>भाषा / Language</strong>
+              <span style={{ color: 'var(--muted)', fontSize: '0.88rem' }}>दाखवलेली भाषा बदला (Set interface language)</span>
+            </div>
+            <select 
+               className="ghost-button" 
+               style={{ background: 'var(--panel-soft)', border: '1px solid var(--line)', padding: '6px 12px', borderRadius: 10, fontSize: '0.88rem', fontWeight: 600, color: 'var(--text)' }}
+               value={settings.language || 'en'}
+               onChange={(e) => updateSetting('language', e.target.value)}
+             >
+                <option value="en">English</option>
+                <option value="mr">मराठी (Marathi)</option>
+             </select>
+          </div>
         </div>
       </article>
 

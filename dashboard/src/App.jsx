@@ -1018,7 +1018,7 @@ function AppRoutes() {
 
 function Shell() {
   const location = useLocation()
-  const { connectionStatus, runState, observation } = useAppContext()
+  const { connectionStatus, runState, observation, t, refreshHealth } = useAppContext()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
@@ -1028,10 +1028,10 @@ function Shell() {
   const meta = routeMeta[location.pathname] || routeMeta['/']
   const statusText =
     connectionStatus === 'live'
-      ? 'WebSocket live'
+      ? t('live')
       : connectionStatus === 'connecting'
-        ? 'Connecting'
-        : 'Offline'
+        ? t('connecting')
+        : t('offline')
   const taskName = useMemo(
     () => formatTaskLabel(observation.task_name || normalizeTaskType(observation.task_type)),
     [observation.task_name, observation.task_type],
@@ -1055,17 +1055,18 @@ function Shell() {
 
           <div className="top-strip__meta">
             {connectionStatus === 'offline' && (
-              <span className="status-pill">
+              <button className="status-pill red" onClick={refreshHealth} style={{ cursor: 'pointer', border: '1px solid var(--red)' }}>
                 <span className="status-dot offline" />
-                <strong>OFFLINE</strong>
-              </span>
+                <strong>{t('offline')}</strong>
+                <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>({t('reconnect')})</span>
+              </button>
             )}
             <span className="status-pill">
-              Session
+              {t('session')}
               <strong>{runState.episode_id ? `SID-${runState.episode_id.slice(0, 8).toUpperCase()}` : 'IDLE'}</strong>
             </span>
             <span className="status-pill">
-              Task
+              {t('task')}
               <strong>{taskName}</strong>
             </span>
           </div>

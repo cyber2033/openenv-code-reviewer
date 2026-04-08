@@ -215,7 +215,7 @@ exit /b 0
 
 :start_backend
 echo [INFO] Starting backend on port %BACKEND_PORT%...
-start "OpenEnv Backend" cmd /k "cd /d ""%API_DIR%"" && echo Backend running at %BACKEND_URL% && ""%VENV_PY%"" -m uvicorn server.main:app --host 127.0.0.1 --port %BACKEND_PORT%"
+start "OpenEnv Backend" cmd /k "cd /d "%API_DIR%" && echo Backend running at %BACKEND_URL% && "%VENV_PY%" -m uvicorn server.main:app --host 127.0.0.1 --port %BACKEND_PORT%"
 if errorlevel 1 (
     echo [ERROR] Failed to launch the backend terminal.
     exit /b 1
@@ -224,7 +224,7 @@ exit /b 0
 
 :start_frontend
 echo [INFO] Starting frontend on port %FRONTEND_PORT%...
-start "OpenEnv Frontend" cmd /k "cd /d ""%WEB_DIR%"" && echo Frontend running at %FRONTEND_URL% && npm run dev -- --host 127.0.0.1 --port %FRONTEND_PORT%"
+start "OpenEnv Frontend" cmd /k "cd /d "%WEB_DIR%" && echo Frontend running at %FRONTEND_URL% && npm run dev -- --host 127.0.0.1 --port %FRONTEND_PORT%"
 if errorlevel 1 (
     echo [ERROR] Failed to launch the frontend terminal.
     exit /b 1

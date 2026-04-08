@@ -169,16 +169,18 @@ async def emit_event(t, p):
 @app.get("/health")
 async def health():
     import google.generativeai as genai
-    openai_key = os.getenv("OPENAI_API_KEY")
-    gemini_key = os.getenv("GEMINI_API_KEY")
+    openai_key = os.getenv("OPENAI_API_KEY", "").strip()
+    gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
     g_active = False
-    if gemini_key and "your_" not in gemini_key:
+    if gemini_key and "your_" not in gemini_key.lower():
         try:
             genai.configure(api_key=gemini_key)
-            genai.list_models()
+            # Try a very lightweight call to check if key is valid
+            genai.get_model('models/gemini-1.5-flash')
             g_active = True
-        except: pass
-    o_active = openai_key and len(openai_key) > 20 and "your_" not in openai_key
+        except Exception as e:
+            print(f"Gemini init warning: {e}")
+    o_active = openai_key and len(openai_key) > 20 and "your_" not in openai_key.lower()
     return {"status": "ok", "openai_active": o_active, "gemini_active": g_active, "version": "1.1.0"}
 
 @app.post("/reset", response_model=ResetResult)
@@ -340,11 +342,12 @@ async def export_csv_episodes():
 
 @app.on_event("startup")
 async def startup_event():
-    print("\n" + "="*50)
-    print("🚀 AI CODE REVIEW BACKEND IS LIVE")
-    print(f"👉 DASHBOARD : http://127.0.0.1:7860/ui/")
-    print(f"👉 API HEALTH: http://127.0.0.1:7860/health")
-    print("="*50 + "\n")
+    print("\n" + "═"*50)
+    print("  OPENENV AI CODE REVIEW SYSTEM")
+    print("  STATUS: ONLINE")
+    print(f"  DASHBOARD : http://127.0.0.1:7860/ui/")
+    print(f"  API HEALTH: http://127.0.0.1:7860/health")
+    print("═"*50 + "\n")
 
 if __name__ == "__main__":
     import uvicorn

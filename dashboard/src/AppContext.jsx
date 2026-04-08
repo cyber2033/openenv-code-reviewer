@@ -47,6 +47,7 @@ const DEFAULT_SETTINGS = {
   hintsEnabled: true,
   llmJudgeEnabled: false,
   modelName: 'gemini-1.5-flash',
+  language: 'en',
 }
 
 export const taskCatalog = [
@@ -87,6 +88,41 @@ export const taskCatalog = [
       'Coverage, precision, and severity alignment decide the score. Repeated noisy comments flatten reward gains.',
   },
 ]
+
+export const translations = {
+  en: {
+    offline: 'OFFLINE',
+    connecting: 'CONNECTING',
+    live: 'WS LIVE',
+    session: 'Session',
+    task: 'Task',
+    performanceScore: 'Performance Score',
+    assignedComplexity: 'Assigned Complexity',
+    agentDeployment: 'Agent Deployment',
+    latestObservations: 'Analyst Observations',
+    reconnect: 'Reconnect',
+    intelligenceView: 'Intelligence View',
+    accuracySignal: 'Accuracy Signal',
+    bugsFound: 'Bugs Found',
+    remediation: 'Proposed Remediation',
+  },
+  mr: {
+    offline: 'ऑफलाईन',
+    connecting: 'कनेक्ट होत आहे',
+    live: 'लाईव्ह',
+    session: 'सेशन',
+    task: 'टास्क',
+    performanceScore: 'कामगिरी स्कोर',
+    assignedComplexity: 'काठीण्य पातळी',
+    agentDeployment: 'एजंट स्थिती',
+    latestObservations: 'निरीक्षणे',
+    reconnect: 'पुन्हा जोडा',
+    intelligenceView: 'इंटेलिजेंस व्ह्यू',
+    accuracySignal: 'अ‍ॅक्युरेसी सिग्नल',
+    bugsFound: 'सापडलेले बग्स',
+    remediation: 'उपाय योजना',
+  }
+}
 
 export const apiDocs = [
   {
@@ -382,6 +418,11 @@ export function AppProvider({ children }) {
     health: null,
     episodes: null,
   })
+
+  const t = useCallback((key) => {
+    const lang = settings.language || 'en'
+    return translations[lang][key] || key
+  }, [settings.language])
 
   const requestJson = useCallback(async (path, options = {}) => {
     const response = await fetch(`${API_BASE}${path}`, {
@@ -863,6 +904,7 @@ export function AppProvider({ children }) {
   )
 
   const value = {
+    t,
     apiBase: API_BASE || (typeof window !== 'undefined' ? window.location.origin : ''),
     health,
     runState,

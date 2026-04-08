@@ -22,7 +22,7 @@ function CommentCard({ comment }) {
       )}
       {comment?.fix && (
         <div style={{ marginTop: 12, padding: 12, background: 'var(--blue-soft)', borderRadius: 12, fontSize: '0.88rem' }}>
-          <strong style={{ display: 'block', fontSize: '0.7rem', color: 'var(--blue)', textTransform: 'uppercase', marginBottom: 4 }}>Suggested Fix</strong>
+          <strong style={{ display: 'block', fontSize: '0.7rem', color: 'var(--blue)', textTransform: 'uppercase', marginBottom: 4 }}>{t('remediation')}</strong>
           <code style={{ fontSize: '0.85rem' }}>{comment?.fix}</code>
         </div>
       )}
@@ -59,7 +59,8 @@ export default function LiveMonitor() {
     observation,
     runState,
     testEndpoint,
-    refreshLeaderboard
+    refreshLeaderboard,
+    t
   } = useAppContext()
 
   const handleHint = async () => {
@@ -77,7 +78,7 @@ export default function LiveMonitor() {
     <section className="page transition">
       <div className="grid three">
         <article className="card metric-card">
-          <span className="metric-label">Performance Score</span>
+          <span className="metric-label">{t('performanceScore')}</span>
           <strong className="metric-value" style={{ fontVariantNumeric: 'tabular-nums' }}>
             {Number(observation.current_score || 0).toFixed(3)}
           </strong>
@@ -87,7 +88,7 @@ export default function LiveMonitor() {
         </article>
 
         <article className="card metric-card">
-          <span className="metric-label">Assigned Complexity</span>
+          <span className="metric-label">{t('assignedComplexity')}</span>
           <strong className="metric-value" style={{ color: 'var(--blue)' }}>
             {String(observation.task_type || 'none').toUpperCase()}
           </strong>
@@ -95,7 +96,7 @@ export default function LiveMonitor() {
         </article>
 
         <article className="card metric-card">
-          <span className="metric-label">Agent Deployment</span>
+          <span className="metric-label">{t('agentDeployment')}</span>
           <strong className="metric-value" style={{ color: agentStatus === 'RUNNING' ? 'var(--green)' : 'var(--text)' }}>
             {agentStatus === 'RUNNING' ? 'ACTIVE' : agentStatus}
           </strong>
@@ -110,7 +111,7 @@ export default function LiveMonitor() {
           <article className="card">
             <div className="card-header" style={{ marginBottom: 32 }}>
               <div>
-                <h2>Intelligence View</h2>
+                <h2>{t('intelligenceView')}</h2>
                 <p>Telemetry from the AI agent's current code review iteration.</p>
               </div>
               <button className="button outline" onClick={handleHint}>Request Clue</button>
@@ -119,13 +120,13 @@ export default function LiveMonitor() {
             <div className="grid two" style={{ gap: 40 }}>
               <div className="stack" style={{ gap: 24 }}>
                 <div style={{ padding: 24, background: 'var(--panel-soft)', borderRadius: 20 }}>
-                  <span className="metric-label" style={{ fontSize: '0.65rem' }}>Accuracy Signal</span>
+                  <span className="metric-label" style={{ fontSize: '0.65rem' }}>{t('accuracySignal')}</span>
                   <div style={{ fontSize: '1.8rem', fontWeight: 800, marginTop: 4 }}>
                     {agentStatus === 'IDLE' ? 'Ready' : runState.success ? 'Success' : runState.done ? 'Missed' : 'Analyzing...'}
                   </div>
                 </div>
                 <div style={{ padding: 24, background: 'var(--panel-soft)', borderRadius: 20 }}>
-                  <span className="metric-label" style={{ fontSize: '0.65rem' }}>Bugs Found</span>
+                  <span className="metric-label" style={{ fontSize: '0.65rem' }}>{t('bugsFound')}</span>
                   <div style={{ fontSize: '1.8rem', fontWeight: 800, marginTop: 4 }}>
                     {comments.length}
                   </div>
@@ -144,7 +145,7 @@ export default function LiveMonitor() {
           <article className="card">
             <div className="card-header">
               <div>
-                <h2>Analyst Observations</h2>
+                <h2>{t('latestObservations')}</h2>
                 <p>Structured feedback and proposes for bug remediation.</p>
               </div>
               <span className="badge">{comments.length} events recorded</span>
