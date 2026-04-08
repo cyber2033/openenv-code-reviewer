@@ -338,6 +338,11 @@ async def export_csv_episodes():
         writer.writerow([ep["episode_id"], ep["task_name"], ep["task_type"], ep["final_score"], ep.get("model_name", ""), ep.get("finished_at", "")])
     return Response(content=output.getvalue(), media_type="text/csv")
 
+@app.post("/reset")
+async def reset_endpoint():
+    reset_runtime_state()
+    return {"status": "ok"}
+
 @app.get("/")
 async def root(): return RedirectResponse("/ui/")
 
