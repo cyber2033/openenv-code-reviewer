@@ -14,10 +14,8 @@ ITEMS_TO_UPLOAD = [
     ("openenv.yaml", "openenv.yaml"),
     ("requirements.txt", "requirements.txt"),
     ("README.md", "README.md"),
-    # Backend files
-    ("code-review-env/server/main.py", "code-review-env/server/main.py"),
-    ("code-review-env/server/grader.py", "code-review-env/server/grader.py"),
-    ("code-review-env/server/models.py", "code-review-env/server/models.py"),
+    # Backend files (including tasks, models, grader)
+    ("code-review-env/server", "code-review-env/server"),
     ("code-review-env/requirements.txt", "code-review-env/requirements.txt"),
     # Frontend files
     ("dashboard/index.html", "dashboard/index.html"),
