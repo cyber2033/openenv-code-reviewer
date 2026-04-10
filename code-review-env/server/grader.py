@@ -110,7 +110,7 @@ class Grader:
                 score -= 0.10
 
         score = self.apply_anti_spam(score, comments, ground_truth)
-        return float(min(max(score, 0.0), 1.0))
+        return float(min(max(score, 0.01), 0.99))
 
     def score_medium(
         self,
@@ -144,7 +144,7 @@ class Grader:
         score = 0.6 * recall + 0.4 * precision
         score += 0.25 * true_positives + 0.10 * category_matches - 0.10 * false_positives
         score = self.apply_anti_spam(score, comments, ground_truth)
-        return float(min(max(score, 0.0), 1.0))
+        return float(min(max(score, 0.01), 0.99))
 
     def score_hard(
         self,
@@ -177,7 +177,7 @@ class Grader:
 
         score = 0.5 * coverage + 0.3 * precision + 0.2 * severity_accuracy
         score = self.apply_anti_spam(score, comments, ground_truth)
-        return float(min(max(score, 0.0), 1.0))
+        return float(min(max(score, 0.01), 0.99))
 
     def is_success(
         self,
@@ -234,7 +234,7 @@ class Grader:
             llm_score = float(match.group(0))
             llm_score = float(min(max(llm_score, 0.0), 1.0))
             final = 0.6 * rule_score + 0.4 * llm_score
-            return float(min(max(final, 0.0), 1.0))
+            return float(min(max(final, 0.01), 0.99))
         except Exception:
             return rule_score
 
@@ -254,5 +254,5 @@ class Grader:
 
 grader = Grader()
 
-assert grader.score_easy([], [{"line": 1, "severity": "high", "category": "logic"}]) == 0.0
+assert grader.score_easy([], [{"line": 1, "severity": "high", "category": "logic"}]) == 0.01
 assert grader.compute_reward(0.0, 0.5) == 0.35

@@ -4,7 +4,7 @@ import os
 api = HfApi(token=os.getenv("HF_TOKEN"))
 repo_id = "receptionistprotactiniumsoft/openenv-code-reviewer"
 
-print("🚀 Starting FULL REPAIR upload to Hugging Face Space...")
+print("Starting FULL REPAIR upload to Hugging Face Space...")
 
 # High-priority files and folders with correct relative paths
 # We use forward slashes for path_in_repo to avoid the Windows backslash mess
@@ -31,7 +31,7 @@ for local_path, repo_path in ITEMS_TO_UPLOAD:
     
     if os.path.isfile(local_path):
         try:
-            print(f"⬆️ Uploading File: {local_path} -> {repo_path}...")
+            print(f"Uploading File: {local_path} -> {repo_path}...")
             api.upload_file(
                 path_or_fileobj=local_path,
                 path_in_repo=repo_path,
@@ -39,10 +39,10 @@ for local_path, repo_path in ITEMS_TO_UPLOAD:
                 repo_type="space"
             )
         except Exception as e:
-            print(f"❌ Failed to upload {local_path}: {e}")
+            print(f"Failed to upload {local_path}: {e}")
     elif os.path.isdir(local_path):
         try:
-            print(f"⬆️ Uploading Folder: {local_path} -> {repo_path}...")
+            print(f"Uploading Folder: {local_path} -> {repo_path}...")
             api.upload_folder(
                 folder_path=local_path,
                 path_in_repo=repo_path,
@@ -51,6 +51,6 @@ for local_path, repo_path in ITEMS_TO_UPLOAD:
                 ignore_patterns=["*.pyc", "__pycache__*", "node_modules*", "dist*"]
             )
         except Exception as e:
-            print(f"❌ Failed to upload folder {local_path}: {e}")
+            print(f"Failed to upload folder {local_path}: {e}")
 
-print("✅ SUCCESS! All missing components uploaded. Build should restart now.")
+print("SUCCESS! All missing components uploaded. Build should restart now.")

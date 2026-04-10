@@ -88,7 +88,7 @@ state = {
     "step_count": 0,
     "total_reward": 0.0,
     "episode_done": False,
-    "prev_score": 0.0,
+    "prev_score": 0.01,
     "reset_called": False,
     "current_diff": "",
     "ground_truth": [],
@@ -134,7 +134,7 @@ def reset_runtime_state():
     state["step_count"] = 0
     state["total_reward"] = 0.0
     state["episode_done"] = False
-    state["prev_score"] = 0.0
+    state["prev_score"] = 0.01
     state["reset_called"] = True
     state["episode_recorded"] = False
     state["hints_used"] = 0
@@ -184,9 +184,10 @@ async def health():
     return {"status": "ok", "openai_active": o_active, "gemini_active": g_active, "version": "1.1.0"}
 
 @app.post("/reset", response_model=ResetResult)
-async def reset(req: ResetRequest | None = Body(default=None)):
-    task_name = (req.task_name if req else None) or "easy_001"
-    state["model_name"] = (req.model_name if req else None) or "gemini-1.5-flash"
+async def reset(req: dict = Body(default=None)):
+    if req is None: req = {}
+    task_name = req.get("task_name") or "easy_001"
+    state["model_name"] = req.get("model_name") or "gemini-1.5-flash"
     state["episode_id"] = str(uuid.uuid4())
     selected, t_type = select_task(task_name)
     reset_runtime_state()
@@ -342,12 +343,12 @@ async def export_csv_episodes():
 
 @app.on_event("startup")
 async def startup_event():
-    print("\n" + "═"*50)
+    print("\n" + "="*50)
     print("  OPENENV AI CODE REVIEW SYSTEM")
     print("  STATUS: ONLINE")
     print(f"  DASHBOARD : http://127.0.0.1:7860/ui/")
     print(f"  API HEALTH: http://127.0.0.1:7860/health")
-    print("═"*50 + "\n")
+    print("="*50 + "\n")
 
 if __name__ == "__main__":
     import uvicorn
