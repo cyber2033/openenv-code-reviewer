@@ -184,7 +184,7 @@ async def health():
     return {"status": "ok", "openai_active": o_active, "gemini_active": g_active, "version": "1.1.0"}
 
 @app.post("/reset", response_model=ResetResult)
-async def reset(req: dict = Body(default=None)):
+async def reset(req: dict | None = Body(default=None)):
     if req is None: req = {}
     task_name = req.get("task_name") or "easy_001"
     state["model_name"] = req.get("model_name") or "gemini-1.5-flash"

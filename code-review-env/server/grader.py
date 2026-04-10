@@ -87,7 +87,7 @@ class Grader:
         ground_truth: list[dict[str, Any]],
     ) -> float:
         if not ground_truth:
-            return 0.0
+            return 0.01
 
         matched_gt: set[int] = set()
         score = 0.0
@@ -118,7 +118,7 @@ class Grader:
         ground_truth: list[dict[str, Any]],
     ) -> float:
         if not ground_truth:
-            return 0.0
+            return 0.01
 
         matched_gt: set[int] = set()
         true_positives = 0
@@ -152,7 +152,7 @@ class Grader:
         ground_truth: list[dict[str, Any]],
     ) -> float:
         if not ground_truth:
-            return 0.0
+            return 0.01
 
         matched_gt: set[int] = set()
         true_positives = 0
