@@ -43,7 +43,7 @@ def run_task(task_name):
         obs = resp.json()["observation"]
     except Exception as e:
         # According to rules, [END] must always be emitted even on exception
-        print(f"[END] success=false steps=0 rewards=0.01")
+        print(f"[END] success=false steps=0 score=0.01 rewards=0.01")
         return
 
     # [START] LINE - REQUIRED FORMAT
@@ -108,10 +108,18 @@ def run_task(task_name):
             break
 
     # [END] LINE - REQUIRED FORMAT
-    # Format: [END] success=<true/false> steps=<n> rewards=<r1,r2,...,rn>
+    # Format: [END] success=<true/false> steps=<n> score=<s.ss> rewards=<r1,r2,...,rn>
     success_str = "true" if success else "false"
     rewards_str = ",".join([f"{r:.2f}" for r in rewards_list])
-    print(f"[END] success={success_str} steps={step_count} rewards={rewards_str}")
+    
+    # Extract final score safely
+    try:
+        final_score = float(obs.get("current_score", 0.01))
+        final_score = min(max(final_score, 0.01), 0.99)
+    except Exception:
+        final_score = 0.01
+        
+    print(f"[END] success={success_str} steps={step_count} score={final_score:.3f} rewards={rewards_str}")
 
 if __name__ == "__main__":
     # The evaluation system usually iterates through tasks
