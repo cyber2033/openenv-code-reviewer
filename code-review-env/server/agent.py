@@ -14,6 +14,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 SERVER_URL = f"http://127.0.0.1:{os.getenv('BACKEND_PORT', '7860')}"
+APP_API_KEY = os.getenv("APP_API_KEY", "openenv_secret_key_123")
+HEADERS = {"X-API-Key": APP_API_KEY}
 
 SYSTEM_PROMPT = (
     "You are an expert code reviewer. Read the code diff carefully.\n"
@@ -76,7 +78,7 @@ class CodeReviewAgent:
         
         try:
             # Reset the environment
-            resp = httpx.post(f"{SERVER_URL}/reset", json={"task_name": task_name, "model_name": self.model_name}, timeout=30.0)
+            resp = httpx.post(f"{SERVER_URL}/reset", json={"task_name": task_name, "model_name": self.model_name}, headers=HEADERS, timeout=30.0)
             resp.raise_for_status()
             data = resp.json()
             obs = data["observation"]
@@ -104,7 +106,7 @@ class CodeReviewAgent:
                 action = json.loads(cleaned)
                 
                 # Submit action
-                step_resp = httpx.post(f"{SERVER_URL}/step", json=action, timeout=30.0)
+                step_resp = httpx.post(f"{SERVER_URL}/step", json=action, headers=HEADERS, timeout=30.0)
                 step_resp.raise_for_status()
                 step_data = step_resp.json()
                 

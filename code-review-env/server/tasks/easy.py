@@ -28,5 +28,23 @@ EASY_TASKS = [
         "filename": "math_utils.py",
         "diff": "1: def fib(n):\n2:     if n <= 0: return 0\n3:     if n == 1: return 0\n4:     return fib(n-1) + fib(n-2)",
         "ground_truth": [{"line": 3, "severity": "low", "category": "Logic", "description": "wrong base case: should return 1"}]
+    },
+    {
+        "id": "easy_006",
+        "filename": "collections_util.py",
+        "diff": "1: def add_items(new_item, current_list=[]):\n2:     current_list.append(new_item)\n3:     return current_list",
+        "ground_truth": [{"line": 1, "severity": "medium", "category": "Logic", "description": "Mutable default argument used"}]
+    },
+    {
+        "id": "easy_007",
+        "filename": "logger.py",
+        "diff": "1: def log_error(err_code, msg):\n2:     print(\"Error: \" + err_code + \" - \" + msg)",
+        "ground_truth": [{"line": 2, "severity": "low", "category": "Logic", "description": "TypeError if err_code is int"}]
+    },
+    {
+        "id": "easy_008",
+        "filename": "user_component.js",
+        "diff": "1: const UserProfile = ({ name }) => {\n2:   const getName = () => {\n3:     return this.name;\n4:   };\n5:   return <div>{getName()}</div>;\n6: };",
+        "ground_truth": [{"line": 3, "severity": "high", "category": "Logic", "description": "Arrow function capture of 'this' in functional component"}]
     }
 ]

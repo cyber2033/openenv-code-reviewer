@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { formatScore, formatTaskLabel, normalizeTaskType, useAppContext } from '../AppContext'
 
+
 const MEDAL = { 1: '🥇', 2: '🥈', 3: '🥉' }
 const RANK_CLASSES = { 1: 'rank-1', 2: 'rank-2', 3: 'rank-3' }
 
-function SubmitForm({ onSubmit, error, loading }) {
+function SubmitForm({ onSubmit, error, loading, t }) {
   const [form, setForm] = useState({
     agent_name: '',
     task: 'easy_001',
@@ -38,7 +39,7 @@ function SubmitForm({ onSubmit, error, loading }) {
     <form onSubmit={handleSubmit}>
       <div className="form-grid two">
         <div className="field">
-          <label htmlFor="lb-agent-name">Agent name</label>
+          <label htmlFor="lb-agent-name">{t('lbAgentName')}</label>
           <input
             id="lb-agent-name"
             className="input"
@@ -49,7 +50,7 @@ function SubmitForm({ onSubmit, error, loading }) {
           />
         </div>
         <div className="field">
-          <label htmlFor="lb-task">Task</label>
+          <label htmlFor="lb-task">{t('lbTask')}</label>
           <select
             id="lb-task"
             className="select"
@@ -62,7 +63,7 @@ function SubmitForm({ onSubmit, error, loading }) {
           </select>
         </div>
         <div className="field">
-          <label htmlFor="lb-score">Score (0–1)</label>
+          <label htmlFor="lb-score">{t('lbScore')}</label>
           <input
             id="lb-score"
             className="input"
@@ -77,7 +78,7 @@ function SubmitForm({ onSubmit, error, loading }) {
           />
         </div>
         <div className="field">
-          <label htmlFor="lb-steps">Steps used</label>
+          <label htmlFor="lb-steps">{t('lbSteps')}</label>
           <input
             id="lb-steps"
             className="input"
@@ -90,7 +91,7 @@ function SubmitForm({ onSubmit, error, loading }) {
           />
         </div>
         <div className="field">
-          <label htmlFor="lb-model">Model (optional)</label>
+          <label htmlFor="lb-model">{t('lbModel')}</label>
           <input
             id="lb-model"
             className="input"
@@ -103,9 +104,9 @@ function SubmitForm({ onSubmit, error, loading }) {
 
       <div className="button-row" style={{ marginTop: 16 }}>
         <button type="submit" className="button" disabled={loading}>
-          {loading ? 'Submitting…' : 'Submit score'}
+          {loading ? t('lbSubmitting') : t('lbSubmit')}
         </button>
-        {ok && <span className="badge green">Submitted successfully!</span>}
+        {ok && <span className="badge green">{t('lbSuccess')}</span>}
         {error && <span className="badge red">{error}</span>}
       </div>
     </form>
@@ -113,7 +114,7 @@ function SubmitForm({ onSubmit, error, loading }) {
 }
 
 export default function Leaderboard() {
-  const { leaderboard, refreshLeaderboard, submitLeaderboard, errors, loading, lastUpdated } =
+  const { leaderboard, refreshLeaderboard, submitLeaderboard, errors, loading, lastUpdated, t } =
     useAppContext()
 
   const [filter, setFilter] = useState('all')
@@ -137,12 +138,12 @@ export default function Leaderboard() {
     <section className="page">
       <div className="grid two">
         <article className="card metric-card">
-          <span className="metric-label">Total entries</span>
+          <span className="metric-label">{t('lbTotalEntries')}</span>
           <strong className="metric-value">{leaderboard.length}</strong>
           <span className="metric-meta">Auto-refreshes every 10 s · Last: {updatedStr}</span>
         </article>
         <article className="card metric-card">
-          <span className="metric-label">Top score</span>
+          <span className="metric-label">{t('lbTopScore')}</span>
           <strong className="metric-value" style={{ color: 'var(--amber)' }}>
             {leaderboard.length ? formatScore(leaderboard[0]?.score) : '—'}
           </strong>
@@ -153,11 +154,11 @@ export default function Leaderboard() {
       <article className="card">
         <div className="card-header">
           <div>
-            <h2>Rankings</h2>
-            <p>Top 3 highlighted with gold, silver, and bronze. Filter by task type below.</p>
+            <h2>{t('lbRankings')}</h2>
+            <p>{t('lbRankDesc')}</p>
           </div>
           <button type="button" className="ghost-button" onClick={refreshLeaderboard}>
-            ↻ Refresh
+            {t('lbRefresh')}
           </button>
         </div>
 
@@ -182,19 +183,19 @@ export default function Leaderboard() {
 
         {filtered.length === 0 ? (
           <div className="empty">
-            No entries{filter !== 'all' ? ` for "${filter}"` : ''} yet. Submit a run below!
+          {t('lbEmpty')}
           </div>
         ) : (
           <div className="table-wrap">
             <table className="table">
               <thead>
                 <tr>
-                  <th>Rank</th>
-                  <th>Agent</th>
-                  <th>Task</th>
-                  <th>Score</th>
-                  <th>Steps</th>
-                  <th>Model</th>
+                  <th>{t('lbColRank')}</th>
+                  <th>{t('lbColAgent')}</th>
+                  <th>{t('lbColTask')}</th>
+                  <th>{t('lbColScore')}</th>
+                  <th>{t('lbColSteps')}</th>
+                  <th>{t('lbColModel')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,14 +232,15 @@ export default function Leaderboard() {
       <article className="card">
         <div className="card-header">
           <div>
-            <h2>Submit your score</h2>
-            <p>Add your agent's result to the leaderboard without leaving this tab.</p>
+            <h2>{t('lbSubmitTitle')}</h2>
+            <p>{t('lbSubmitDesc')}</p>
           </div>
         </div>
         <SubmitForm
           onSubmit={submitLeaderboard}
           error={errors.submit}
           loading={loading.submit}
+          t={t}
         />
       </article>
     </section>

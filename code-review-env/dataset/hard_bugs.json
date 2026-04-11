@@ -44,5 +44,42 @@
         "category": "security"
       }
     ]
+  },
+  {
+    "id": "hard_004",
+    "filename": "counter.diff",
+    "diff": "--- a/counter.py\n+++ b/counter.py\n1: import threading\n2: count = 0\n3: def increment():\n4:     global count\n5:     temp = count\n6:     temp += 1\n7:     count = temp",
+    "ground_truth": [
+      {
+        "line": 5,
+        "severity": "high",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "hard_005",
+    "filename": "jwt_verify.diff",
+    "diff": "--- a/jwt.py\n+++ b/jwt.py\n1: import jwt\n2: def decode_token(token, public_key):\n3:    # Vulnerable to algorithm confusion\n4:    return jwt.decode(token, public_key, algorithms=['RS256', 'HS256'])",
+    "ground_truth": [
+      {
+        "line": 4,
+        "severity": "critical",
+        "category": "security"
+      }
+    ]
+  },
+  {
+    "id": "hard_006",
+    "filename": "merge.js",
+    "diff": "1: function merge(target, source) {\n2:   for (let key in source) {\n3:     if (typeof target[key] === 'object' && typeof source[key] === 'object') {\n4:       merge(target[key], source[key]);\n5:     } else {\n6:       target[key] = source[key];\n7:     }\n8:   }\n9: }",
+    "ground_truth": [
+      {
+        "line": 6,
+        "severity": "critical",
+        "category": "security",
+        "description": "Vulnerable to prototype pollution"
+      }
+    ]
   }
 ]

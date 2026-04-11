@@ -14,15 +14,15 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { formatScore, formatTaskLabel, useAppContext } from '../AppContext'
 
 const navItems = [
-  { to: '/', label: 'Live Monitor', icon: Activity },
-  { to: '/lab', label: 'Lab Audit', icon: Zap },
-  { to: '/diff', label: 'Diff Viewer', icon: FileCode2 },
-  { to: '/scoring', label: 'Analytics', icon: Gauge },
-  { to: '/leaderboard', label: 'Leaderboard', icon: Trophy },
-  { to: '/replay', label: 'Replay', icon: PlayCircle },
-  { to: '/tasks', label: 'Tasks', icon: Layers },
-  { to: '/api', label: 'API', icon: Braces },
-  { to: '/settings', label: 'Settings', icon: Settings },
+  { to: '/', labelKey: 'navLiveMonitor', icon: Activity },
+  { to: '/lab', labelKey: 'navLabAudit', icon: Zap },
+  { to: '/diff', labelKey: 'navDiffViewer', icon: FileCode2 },
+  { to: '/scoring', labelKey: 'navAnalytics', icon: Gauge },
+  { to: '/leaderboard', labelKey: 'navLeaderboard', icon: Trophy },
+  { to: '/replay', labelKey: 'navReplay', icon: PlayCircle },
+  { to: '/tasks', labelKey: 'navTasks', icon: Layers },
+  { to: '/api', labelKey: 'navAPI', icon: Braces },
+  { to: '/settings', labelKey: 'navSettings', icon: Settings },
 ]
 
 const sidebarStyles = `
@@ -204,10 +204,11 @@ const sidebarStyles = `
 export default function Sidebar({ isOpen, onOpen, onClose }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const { connectionStatus, observation, runState, updateSetting, settings } = useAppContext()
+  const { connectionStatus, observation, runState, updateSetting, settings, t } = useAppContext()
 
   const taskLabel = formatTaskLabel(observation.task_name || observation.task_type)
   const socketTone = connectionStatus === 'live' ? 'live' : 'offline'
+
 
   return (
     <>
@@ -228,7 +229,7 @@ export default function Sidebar({ isOpen, onOpen, onClose }) {
               <rect x="1" y="1" width="30" height="30" rx="8" fill="black"/>
               <path d="M12 11L8 16L12 21M20 11L24 16L20 21" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="logo-text">Open<strong style={{ color: 'var(--blue)' }}>Env</strong></span>
+            <span className="logo-text">{t('navTitle')}</span>
           </div>
         </button>
         <p className="sidebar-copy">
@@ -236,7 +237,7 @@ export default function Sidebar({ isOpen, onOpen, onClose }) {
         </p>
 
         <nav className="sidebar-nav">
-          {navItems.map(({ to, label, icon: Icon }) => {
+          {navItems.map(({ to, labelKey, icon: Icon }) => {
             const active = location.pathname === to
 
             return (
@@ -247,7 +248,7 @@ export default function Sidebar({ isOpen, onOpen, onClose }) {
                 onClick={onClose}
               >
                 <Icon size={18} />
-                <span>{label}</span>
+                <span>{t(labelKey)}</span>
               </Link>
             )
           })}
@@ -255,7 +256,7 @@ export default function Sidebar({ isOpen, onOpen, onClose }) {
 
         <div className="sidebar-meta">
           <div className="sidebar-panel">
-            <span className="sidebar-label">AI ENGINE CONFIG</span>
+            <span className="sidebar-label">{t('aiEngineConfig')}</span>
             <select 
               className="sidebar-select"
               value={settings.modelName || 'gemini-1.5-flash'}
@@ -269,7 +270,7 @@ export default function Sidebar({ isOpen, onOpen, onClose }) {
           </div>
 
           <div className="sidebar-panel">
-            <span className="sidebar-label">Score</span>
+            <span className="sidebar-label">{t('sidebarScore')}</span>
             <div className="sidebar-score">{formatScore(observation.current_score)}</div>
             <div className="sidebar-status">
               <span>{taskLabel}</span>
@@ -278,10 +279,10 @@ export default function Sidebar({ isOpen, onOpen, onClose }) {
           </div>
 
           <div className="sidebar-panel">
-            <span className="sidebar-label">Connection</span>
+            <span className="sidebar-label">{t('sidebarConnection')}</span>
             <div className="sidebar-status">
               <span className={`status-dot ${socketTone}`} />
-              <strong>{connectionStatus === 'live' ? 'Connected' : 'Disconnected'}</strong>
+              <strong>{connectionStatus === 'live' ? t('sidebarConnected') : t('sidebarDisconnected')}</strong>
             </div>
           </div>
         </div>

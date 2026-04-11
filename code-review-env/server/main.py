@@ -13,10 +13,12 @@ from dotenv import load_dotenv
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"))
 
 
-from fastapi import Body, FastAPI, HTTPException, Response, WebSocket, WebSocketDisconnect
+from fastapi import Body, Depends, FastAPI, HTTPException, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.security import APIKeyHeader
+from starlette.status import HTTP_403_FORBIDDEN
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -29,6 +31,16 @@ from server.custom_api import router as custom_api_router
 
 
 app = FastAPI(title="AI Code Review Environment", version="1.1.0")
+
+# Security Setup
+API_KEY_NAME = "X-API-Key"
+api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+
+async def get_api_key(api_key: str = Depends(api_key_header)):
+    expected = os.getenv("APP_API_KEY", "openenv_secret_key_123")
+    if api_key != expected:
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Invalid or missing API Key")
+    return api_key
 
 # 1. ADD CORS MIDDLEWARE (Critical for Hackathon Validation)
 app.add_middleware(
@@ -184,7 +196,7 @@ async def health():
     return {"status": "ok", "openai_active": o_active, "gemini_active": g_active, "version": "1.1.0"}
 
 @app.post("/reset", response_model=ResetResult)
-async def reset(req: dict | None = Body(default=None)):
+async def reset(req: dict | None = Body(default=None), _ = Depends(get_api_key)):
     if req is None: req = {}
     task_name = req.get("task_name") or "easy_001"
     state["model_name"] = req.get("model_name") or "gemini-1.5-flash"
@@ -207,7 +219,7 @@ def compute_new_score() -> float:
     return grader.score_hard(state["comments_so_far"], state["ground_truth"])
 
 @app.post("/step", response_model=StepResult)
-async def step(payload: dict = Body(...)):
+async def step(payload: dict = Body(...), _ = Depends(get_api_key)):
     if not state["reset_called"] or not state["task_name"]: raise HTTPException(400, "Reset first")
     if state["episode_done"]: raise HTTPException(400, "Done")
     action = Action(**payload)
@@ -217,18 +229,40 @@ async def step(payload: dict = Body(...)):
     if not action.done: state["comments_so_far"].append(step_entry)
     new_s = compute_new_score()
     reward = grader.compute_reward(state["prev_score"], new_s)
+    
+    if state["task_name"] == "lab_audit":
+        reward = 0.0
+
     state["total_reward"] += reward
     state["prev_score"] = new_s
     state["last_reward"] = reward
+    
+    reason = ""
     if action.done or state["step_count"] >= state["max_steps"]:
         state["episode_done"] = True
+        
+        if state["task_name"] == "lab_audit":
+            f_score, judge_reason = grader.grade_custom_lab(state["comments_so_far"], state["current_diff"], os.getenv("GEMINI_API_KEY"))
+            state["prev_score"] = f_score
+            state["total_reward"] = f_score
+            state["last_reward"] = f_score
+            reason = f"[AI Judge] {judge_reason}"
+            if len(state["comments_so_far"]) > 0:
+                state["comments_so_far"][-1]["reason"] = reason
+        
         # Record the episode for replay
         if not state["episode_recorded"]:
+            if state["task_name"] == "lab_audit":
+                is_suc = state["prev_score"] >= 0.70
+            else:
+                is_suc = grader.is_success(state["task_type"], state["comments_so_far"], state["ground_truth"], state["prev_score"])
+            
             history_entry = {
                 "episode_id": state["episode_id"],
                 "task_name": state["task_name"],
                 "task_type": state["task_type"],
                 "final_score": state["prev_score"],
+                "success": is_suc,
                 "steps": copy.deepcopy(state["comments_so_far"]),
                 "finished_at": utc_now(),
                 "model_name": state["model_name"]
@@ -237,13 +271,48 @@ async def step(payload: dict = Body(...)):
             state["episode_recorded"] = True
             await emit_event("episode_finished", history_entry)
 
-    truth_match = any(grader.comment_matches_ground_truth(step_entry, t, state["task_type"]) for t in state["ground_truth"])
-    reason = grader.get_explanation(reward, truth_match, True, True)
+    if not reason and state["task_name"] != "lab_audit":
+        truth_match = any(grader.comment_matches_ground_truth(step_entry, t, state["task_type"]) for t in state["ground_truth"])
+        reason = grader.get_explanation(reward, truth_match, True, True)
+    elif not reason:
+        reason = "Custom Lab Reviewing..."
+
     step_entry["reason"] = reason
-    if not action.done: state["comments_so_far"][-1]["reason"] = reason
+    if not action.done and state["comments_so_far"]: 
+        state["comments_so_far"][-1]["reason"] = reason
+        
     obs = get_current_obs()
     await emit_event("step_scored", {"step": state["step_count"], "reward": reward, "done": state["episode_done"], "reason": reason})
     return StepResult(observation=obs, reward=reward, done=state["episode_done"], info={"reason": reason})
+
+
+@app.get("/hint")
+async def get_hint(_ = Depends(get_api_key)):
+    if not state["reset_called"] or state["episode_done"]:
+        raise HTTPException(400, "No active episode")
+    
+    if state["hints_used"] >= state["max_hints"]:
+        return {"error": "Maximum hints used", "hint": None}
+
+    # Find a bug that hasn't been found yet
+    found_lines = [int(c.get("line", 0)) for c in state["comments_so_far"]]
+    remaining_bugs = [b for b in state["ground_truth"] if int(b.get("line", 0)) not in found_lines]
+    
+    if not remaining_bugs:
+        return {"error": "No remaining bugs to hint", "hint": None}
+    
+    target_bug = remaining_bugs[0]
+    line = int(target_bug.get("line", 0))
+    window = f"Lines {max(1, line-1)} to {line+1}"
+    
+    state["hints_used"] += 1
+    penalty = -0.05
+    state["total_reward"] += penalty
+    state["last_reward"] = penalty
+    
+    msg = f"Clue: Look closely at {window}"
+    await emit_event("hint_issued", {"hint": msg, "penalty": penalty})
+    return {"hint": msg, "penalty": penalty}
 
 @app.websocket("/ws/events")
 async def websocket_endpoint(websocket: WebSocket):
@@ -271,7 +340,7 @@ async def get_state():
     )
 
 @app.post("/api/custom/review")
-async def review_custom_code(payload: dict = Body(...)):
+async def review_custom_code(payload: dict = Body(...), _ = Depends(get_api_key)):
     code = payload.get("code", "")
     model = payload.get("model_name", "gemini-1.5-flash")
     if not code: raise HTTPException(400, "Code is required")
@@ -303,7 +372,7 @@ async def get_events(): return list(reversed(event_history))
 async def get_lb(): return leaderboard[:10]
 
 @app.post("/leaderboard/submit")
-async def submit_to_leaderboard(payload: dict = Body(...)):
+async def submit_to_leaderboard(payload: dict = Body(...), _ = Depends(get_api_key)):
     name = payload.get("agent_name", "Unknown Agent")
     task = payload.get("task", "unknown")
     score = float(payload.get("score", 0.0))

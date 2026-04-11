@@ -44,6 +44,7 @@ export default function Settings() {
     runState,
     observation,
     requestJson,
+    t,
   } = useAppContext()
 
   const checkApi = async () => {
@@ -62,7 +63,7 @@ export default function Settings() {
     <section className="page">
       <div className="grid two">
         <article className="card metric-card">
-          <span className="metric-label">Backend status</span>
+          <span className="metric-label">{t('settingsBackendStatus')}</span>
           <strong className="metric-value" style={{ color: health.status === 'ok' ? 'var(--green)' : 'var(--red)' }}>
             {String(health.status || 'checking').toUpperCase()}
           </strong>
@@ -71,7 +72,7 @@ export default function Settings() {
           </span>
         </article>
         <article className="card metric-card">
-          <span className="metric-label">Active episode</span>
+          <span className="metric-label">{t('settingsActiveEpisode')}</span>
           <strong className="metric-value mono" style={{ fontSize: '1rem', wordBreak: 'break-all' }}>
             {runState.episode_id || 'None'}
           </strong>
@@ -83,11 +84,11 @@ export default function Settings() {
       <article className="card">
         <div className="card-header">
           <div>
-            <h2>Reviewer API configuration</h2>
-            <p>Verification of API keys in <code>.env</code> file for LLM-based reviews.</p>
+            <h2>{t('settingsApiTitle')}</h2>
+            <p>{t('settingsApiDesc')}</p>
           </div>
           <button type="button" className="ghost-button" onClick={checkApi}>
-            {apiCheck.loading ? 'Checking...' : 'Check API Status'}
+            {apiCheck.loading ? t('settingsChecking') : t('settingsCheckApi')}
           </button>
         </div>
         <div className="settings-grid">
@@ -111,8 +112,8 @@ export default function Settings() {
       <article className="card">
         <div className="card-header">
           <div>
-            <h2>Runtime configuration</h2>
-            <p>Read-only values from the backend. Edit via <code>openenv.yaml</code> and restart the server.</p>
+            <h2>{t('settingsRuntimeTitle')}</h2>
+            <p>{t('settingsRuntimeDesc')}</p>
           </div>
           <button type="button" className="ghost-button" onClick={refreshHealth}>↻ Ping</button>
         </div>
@@ -121,7 +122,7 @@ export default function Settings() {
           
           {/* Interactive Model Selector */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '13px 0', borderBottom: '1px solid var(--line)' }}>
-             <span style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>Reviewer model</span>
+             <span style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>{t('settingsReviewerModel')}</span>
              <select 
                className="ghost-button" 
                style={{ background: 'var(--panel-soft)', border: '1px solid var(--line)', padding: '6px 12px', borderRadius: 10, fontSize: '0.88rem', fontWeight: 600, color: 'var(--text)' }}
@@ -144,29 +145,29 @@ export default function Settings() {
       <article className="card">
         <div className="card-header">
           <div>
-            <h2>UI preferences</h2>
-            <p>Dashboard-only toggles. These are stored in <code>localStorage</code> and do not affect the backend.</p>
+            <h2>{t('settingsTitle')}</h2>
+            <p>{t('settingsDesc')}</p>
           </div>
         </div>
         <div className="settings-grid">
           <ToggleRow
             id="toggle-hints"
-            label="Hints enabled"
-            description="Allow the agent to consume hints. Each hint applies a -0.05 penalty."
+            label={t('settingsHintsLabel')}
+            description={t('settingsHintsDesc')}
             checked={!!settings.hintsEnabled}
             onChange={(v) => updateSetting('hintsEnabled', v)}
           />
           <ToggleRow
             id="toggle-llm-judge"
-            label="LLM judge enabled"
-            description="Use the LLM-based secondary judge alongside the rule-based grader."
+            label={t('settingsLlmLabel')}
+            description={t('settingsLlmDesc')}
             checked={!!settings.llmJudgeEnabled}
             onChange={(v) => updateSetting('llmJudgeEnabled', v)}
           />
           <div className="toggle-row">
             <div>
-              <strong style={{ display: 'block' }}>भाषा / Language</strong>
-              <span style={{ color: 'var(--muted)', fontSize: '0.88rem' }}>दाखवलेली भाषा बदला (Set interface language)</span>
+              <strong style={{ display: 'block' }}>{t('languageSelect')}</strong>
+              <span style={{ color: 'var(--muted)', fontSize: '0.88rem' }}>Set interface language</span>
             </div>
             <select 
                className="ghost-button" 
@@ -175,7 +176,6 @@ export default function Settings() {
                onChange={(e) => updateSetting('language', e.target.value)}
              >
                 <option value="en">English</option>
-                <option value="mr">मराठी (Marathi)</option>
              </select>
           </div>
         </div>
@@ -185,8 +185,8 @@ export default function Settings() {
       <article className="card" style={{ borderColor: 'rgba(255,68,68,0.25)' }}>
         <div className="card-header">
           <div>
-            <h2 style={{ color: 'var(--red)' }}>Danger zone</h2>
-            <p>These actions clear local dashboard caches. They do <strong>not</strong> reset the backend server state.</p>
+            <h2 style={{ color: 'var(--red)' }}>{t('settingsDangerTitle')}</h2>
+            <p>{t('settingsDangerDesc')}</p>
           </div>
         </div>
         <div className="button-row">
@@ -198,7 +198,7 @@ export default function Settings() {
               if (window.confirm('Clear the local leaderboard cache?')) clearLeaderboard()
             }}
           >
-            Clear leaderboard cache
+            {t('settingsClearLb')}
           </button>
           <button
             type="button"
@@ -208,7 +208,7 @@ export default function Settings() {
               if (window.confirm('Clear the local replay history cache?')) clearReplayHistory()
             }}
           >
-            Clear replay history cache
+            {t('settingsClearReplay')}
           </button>
         </div>
         <p style={{ margin: '14px 0 0', color: 'var(--muted)', fontSize: '0.88rem' }}>

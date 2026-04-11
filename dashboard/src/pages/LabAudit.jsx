@@ -4,7 +4,7 @@ import { useAppContext } from '../AppContext'
 
 export default function LabAudit() {
   const navigate = useNavigate()
-  const { requestJson, settings, agentStatus } = useAppContext()
+  const { requestJson, settings, agentStatus, t } = useAppContext()
   const [code, setCode] = useState(`# Paste your Python or JS code here for audit\nimport os\n\ndef my_unsafe_function(user_input):\n    os.system(user_input) # Bug here!\n`)
   const [loading, setLoading] = useState(false)
 
@@ -13,20 +13,17 @@ export default function LabAudit() {
     setLoading(true)
 
     try {
-      console.log('Starting custom audit for code snippet...')
       const response = await requestJson('/api/custom/review', {
         method: 'POST',
         body: JSON.stringify({ code, model_name: settings.modelName }),
       })
       
       if (response && response.status === 'started') {
-        console.log('Audit started successfully:', response.episode_id)
         navigate('/') // Go to Live Monitor to see result
       } else {
         throw new Error('Backend failed to start the review')
       }
     } catch (err) {
-      console.error('Audit initialization failed:', err)
       alert(`Error starting audit: ${err.message}`)
     } finally {
       setLoading(false)
@@ -40,15 +37,15 @@ export default function LabAudit() {
           <article className="card">
             <div className="card-header" style={{ marginBottom: 24 }}>
               <div>
-                <h2>Custom Security Lab</h2>
-                <p>Paste any snippet below to run a professional AI security audit.</p>
+                <h2>{t('labTitle')}</h2>
+                <p>{t('labDesc')}</p>
               </div>
               <button 
                 className="button primary" 
                 onClick={handleRun} 
                 disabled={loading || agentStatus === 'RUNNING'}
               >
-                {loading ? 'Starting...' : 'Run Security Audit'}
+                {loading ? t('labStarting') : t('labRun')}
               </button>
             </div>
 
@@ -90,23 +87,23 @@ export default function LabAudit() {
 
         <div className="stack">
           <article className="card">
-            <h3>Laboratory Guide</h3>
+            <h3>{t('labGuideTitle')}</h3>
             <p style={{ marginTop: 12, fontSize: '0.95rem', lineHeight: 1.6 }}>
-              The Custom Lab allows for <strong>Ad-Hoc Security Scanning.</strong>
+              {t('labGuideDesc')}
             </p>
             <ul style={{ marginTop: 24, paddingLeft: 20, color: 'var(--muted)', fontSize: '0.9rem', display: 'grid', gap: 16 }}>
-              <li>Paste raw code (doesn't need to be a full file).</li>
-              <li>Toggle the <strong>AI Engine Config</strong> in the sidebar before running.</li>
-              <li>Go to <strong>Live Monitor</strong> to watch results in real-time.</li>
-              <li>View the <strong>Analytics</strong> page for the final Audit Tier.</li>
+              <li>{t('labStep1')}</li>
+              <li>{t('labStep2')}</li>
+              <li>{t('labStep3')}</li>
+              <li>{t('labStep4')}</li>
             </ul>
           </article>
 
           <article className="card" style={{ background: 'var(--panel-soft)' }}>
-             <span className="metric-label">Status</span>
+             <span className="metric-label">{t('labStatusLabel')}</span>
              <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div className={`status-dot ${agentStatus === 'RUNNING' ? 'live' : ''}`} />
-                <strong>{agentStatus === 'RUNNING' ? 'System Busy' : 'System Ready'}</strong>
+                <strong>{agentStatus === 'RUNNING' ? t('labBusy') : t('labReady')}</strong>
              </div>
           </article>
         </div>

@@ -27,7 +27,7 @@ function TrendArrow({ trend }) {
 }
 
 export default function Scoring() {
-  const { observation, runState, scoreSeries, rewardSeries, analytics, liveSteps } = useAppContext()
+  const { observation, runState, scoreSeries, rewardSeries, analytics, liveSteps, t } = useAppContext()
 
   const currentScore = Number(observation.current_score || 0)
   const totalReward = Number(runState.total_reward || 0)
@@ -38,25 +38,25 @@ export default function Scoring() {
       {/* KPI strip */}
       <div className="grid four">
         <article className="card metric-card">
-          <span className="metric-label">Evaluation Result</span>
+          <span className="metric-label">{t('scoringEvalResult')}</span>
           <strong className="metric-value" style={{ 
             fontSize: '2.2rem', 
             color: currentScore >= 0.8 ? 'var(--green)' : currentScore >= 0.5 ? 'var(--amber)' : 'var(--muted)' 
           }}>
             {currentScore >= 0.9 ? 'EXCEPTIONAL' : currentScore >= 0.8 ? 'PROFESSIONAL' : currentScore >= 0.5 ? 'RELIABLE' : 'BASELINE'}
           </strong>
-          <span className="metric-meta">Performance Rating</span>
+          <span className="metric-meta">{t('scoringRating')}</span>
         </article>
 
         <article className="card metric-card">
-          <span className="metric-label">Current score</span>
+          <span className="metric-label">{t('scoringCurrent')}</span>
           <strong className="metric-value">{formatScore(currentScore)}</strong>
           <span className="badge green">Judge active</span>
           <span className="metric-meta">Total reward {formatSigned(totalReward)}</span>
         </article>
 
         <article className="card metric-card">
-          <span className="metric-label">True positives</span>
+          <span className="metric-label">{t('scoringTP')}</span>
           <strong className="metric-value" style={{ color: 'var(--green)' }}>
             {truePositives}
           </strong>
@@ -66,7 +66,7 @@ export default function Scoring() {
         </article>
 
         <article className="card metric-card">
-          <span className="metric-label">False positives</span>
+          <span className="metric-label">{t('scoringFP')}</span>
           <strong className="metric-value" style={{ color: 'var(--red)' }}>
             {falsePositives}
           </strong>
@@ -79,7 +79,7 @@ export default function Scoring() {
       <div className="grid two">
         {/* Severity accuracy */}
         <article className="card metric-card">
-          <span className="metric-label">Severity accuracy</span>
+          <span className="metric-label">{t('scoringSeverity')}</span>
           <strong className="metric-value" style={{ color: 'var(--blue)' }}>
             {severityAccuracy}%
           </strong>
@@ -88,7 +88,7 @@ export default function Scoring() {
 
         {/* Performance trend */}
         <article className="card metric-card">
-          <span className="metric-label">Performance trend</span>
+          <span className="metric-label">{t('scoringTrend')}</span>
           <strong className="metric-value">
             <TrendArrow trend={trend} />
             <span style={{ fontSize: '1.4rem', marginLeft: 8, color: 'var(--text)' }}>
@@ -103,7 +103,7 @@ export default function Scoring() {
       <article className="card">
         <div className="card-header">
           <div>
-            <h2>Score over time</h2>
+            <h2>{t('scoringOverTime')}</h2>
             <p>Cumulative score after each step. Pulled from the shared context — no extra fetches.</p>
           </div>
           <span className="badge blue">{scoreSeries.length} points</span>
@@ -146,7 +146,7 @@ export default function Scoring() {
       <article className="card">
         <div className="card-header">
           <div>
-            <h2>Reward per step</h2>
+            <h2>{t('scoringRewardPerStep')}</h2>
             <p>Per-step delta — green bars are positive signals, red bars are wasted comments.</p>
           </div>
           <span className="badge blue">{rewardSeries.length} steps</span>
@@ -184,7 +184,7 @@ export default function Scoring() {
         <article className="card">
           <div className="card-header">
             <div>
-              <h2>Step breakdown</h2>
+              <h2>{t('scoringStepBreakdown')}</h2>
               <p>Every step with line, severity, message, and reward delta.</p>
             </div>
             <span className="badge muted">{liveSteps.length} steps</span>
