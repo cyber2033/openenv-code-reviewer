@@ -57,7 +57,7 @@ class Grader:
 
     def compute_reward(self, old_score: float, new_score: float) -> float:
         value = new_score - old_score
-        return float(min(max(value, 0.0), 0.35))
+        return float(min(max(value, 0.01), 0.35))
 
     def apply_anti_spam(
         self,
