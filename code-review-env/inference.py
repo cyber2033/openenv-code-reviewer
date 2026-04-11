@@ -57,12 +57,12 @@ def run_task(task_name: str) -> None:
         reset_data = response.json()
     except Exception as e:
         print(f"[DEBUG] Reset failed: {e}")
-        print(f"[END] success=false steps=0 score=0.000 rewards=", flush=True)
+        print(f"[END] success=false steps=0 score=0.01 rewards=", flush=True)
         return
 
     if "observation" not in reset_data:
         print("[DEBUG] 'observation' missing in reset_data")
-        print(f"[END] success=false steps=0 score=0.000 rewards=", flush=True)
+        print(f"[END] success=false steps=0 score=0.01 rewards=", flush=True)
         return
 
     obs = reset_data["observation"]
@@ -93,7 +93,7 @@ def run_task(task_name: str) -> None:
             print("[DEBUG] LLM raw response:", raw[:200])
         except Exception as e:
             print(f"[DEBUG] LLM call error: {e}")
-            log_step(step, "api_error", 0.0, False, str(e))
+            log_step(step, "api_error", 0.01, False, str(e))
             continue
 
         # 5. Wrap JSON parse in try/except
@@ -103,7 +103,7 @@ def run_task(task_name: str) -> None:
             action = json.loads(raw_clean)
         except Exception as e:
             print(f"[DEBUG] Parse error: {e}")
-            log_step(step, "parse_error", 0.0, False, str(e))
+            log_step(step, "parse_error", 0.01, False, str(e))
             continue
 
         try:
@@ -112,11 +112,11 @@ def run_task(task_name: str) -> None:
             print("[DEBUG] Step response:", step_res.status_code)
             print("[DEBUG] Step body:", step_res.text[:200])
         except httpx.RequestError as e:
-            log_step(step, json.dumps(action, ensure_ascii=False), 0.0, False, str(e))
+            log_step(step, json.dumps(action, ensure_ascii=False), 0.01, False, str(e))
             continue
 
         if step_res.status_code != 200:
-            log_step(step, json.dumps(action, ensure_ascii=False), 0.0, False, step_res.text)
+            log_step(step, json.dumps(action, ensure_ascii=False), 0.01, False, step_res.text)
             continue
 
         data = step_res.json()
@@ -133,9 +133,9 @@ def run_task(task_name: str) -> None:
         state_res.raise_for_status()
         state_data = state_res.json()
     except httpx.HTTPError:
-        state_data = {"observation": {"current_score": 0.0}, "step": step}
+        state_data = {"observation": {"current_score": 0.01}, "step": step}
 
-    final_score = float(state_data["observation"].get("current_score", 0.0))
+    final_score = float(state_data["observation"].get("current_score", 0.01))
     steps_total = int(state_data.get("step", step))
     success = bool(state_data.get("success", final_score >= 0.5))
     r_str = ",".join(f"{r:.2f}" for r in rewards)

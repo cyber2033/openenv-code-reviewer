@@ -50,10 +50,10 @@ class Grader:
         task_type: str,
     ) -> float:
         if not comments:
-            return 0.0
+            return 0.01
 
         matched = self.count_matched_ground_truth(comments, ground_truth, task_type)
-        return matched / len(comments)
+        return float(min(max(matched / len(comments), 0.01), 0.99))
 
     def compute_reward(self, old_score: float, new_score: float) -> float:
         value = new_score - old_score
@@ -232,7 +232,7 @@ class Grader:
                 return rule_score
 
             llm_score = float(match.group(0))
-            llm_score = float(min(max(llm_score, 0.0), 1.0))
+            llm_score = float(min(max(llm_score, 0.01), 0.99))
             final = 0.6 * rule_score + 0.4 * llm_score
             return float(min(max(final, 0.01), 0.99))
         except Exception:
