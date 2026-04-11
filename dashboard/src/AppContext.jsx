@@ -115,6 +115,7 @@ export const translations = {
     navTasks: 'Tasks',
     navAPI: 'API Docs',
     navSettings: 'Settings',
+    navBattle: 'Battle Mode',
     navTitle: 'OpenEnv',
     // Sidebar Meta
     aiEngineConfig: 'AI ENGINE CONFIG',
@@ -219,6 +220,7 @@ export const translations = {
     navTasks: 'टास्क',
     navAPI: 'API डॉक्स',
     navSettings: 'सेटिंग्ज',
+    navBattle: 'बॅटल मोड',
     navTitle: 'ओपन-एन्व्ह',
     aiEngineConfig: 'एआय इंजिन',
     sidebarScore: 'स्कोर',

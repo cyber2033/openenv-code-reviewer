@@ -9,6 +9,7 @@ import {
   PlayCircle,
   Layers,
   Zap,
+  Swords,
 } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { formatScore, formatTaskLabel, useAppContext } from '../AppContext'
@@ -23,6 +24,7 @@ const navItems = [
   { to: '/tasks', labelKey: 'navTasks', icon: Layers },
   { to: '/api', labelKey: 'navAPI', icon: Braces },
   { to: '/settings', labelKey: 'navSettings', icon: Settings },
+  { to: '/battle', labelKey: 'navBattle', icon: Swords },
 ]
 
 const sidebarStyles = `

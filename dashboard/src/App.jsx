@@ -16,6 +16,7 @@ import Replay from './pages/Replay'
 import Scoring from './pages/Scoring'
 import Settings from './pages/Settings'
 import TaskExplorer from './pages/TaskExplorer'
+import Battle from './pages/Battle'
 
 const routeMeta = {
   '/': {
@@ -1011,6 +1012,7 @@ function AppRoutes() {
       <Route path="/tasks" element={<TaskExplorer />} />
       <Route path="/api" element={<ApiDocs />} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/battle" element={<Battle />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

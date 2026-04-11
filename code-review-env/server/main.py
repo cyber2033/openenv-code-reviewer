@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import csv
 import io
@@ -418,6 +419,113 @@ async def startup_event():
     print(f"  DASHBOARD : http://127.0.0.1:7860/ui/")
     print(f"  API HEALTH: http://127.0.0.1:7860/health")
     print("="*50 + "\n")
+
+# ============ BATTLE MODE ============
+# New in-memory battle storage
+battles: dict = {}
+
+@app.post("/battle/create")
+async def create_battle(
+    task: str = "easy",
+    models: list[str] = [
+        "gpt-4o",
+        "gemini-1.5-flash", 
+        "Qwen/Qwen2.5-72B-Instruct"
+    ]
+):
+    battle_id = str(uuid.uuid4())
+    battles[battle_id] = {
+        "battle_id": battle_id,
+        "task": task,
+        "models": models,
+        "scores": {m: 0.0 for m in models},
+        "steps": {m: 0 for m in models},
+        "done": {m: False for m in models},
+        "winner": None,
+        "status": "running",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "comments": {m: [] for m in models}
+    }
+    return battles[battle_id]
+
+@app.post("/battle/{battle_id}/step/{model_name}")
+async def battle_step(
+    battle_id: str,
+    model_name: str,
+    action: Action
+):
+    if battle_id not in battles:
+        raise HTTPException(404, "Battle not found")
+    battle = battles[battle_id]
+    if model_name not in battle["models"]:
+        raise HTTPException(400, "Model not in battle")
+    
+    old_score = battle["scores"][model_name]
+    battle["steps"][model_name] += 1
+    battle["comments"][model_name].append({
+        "line": action.line,
+        "severity": action.severity,
+        "message": action.message,
+        "step": battle["steps"][model_name]
+    })
+    
+    new_score = min(old_score + 0.15, 1.0)
+    battle["scores"][model_name] = new_score
+    
+    if action.done or battle["steps"][model_name] >= 6:
+        battle["done"][model_name] = True
+    
+    if all(battle["done"].values()):
+        battle["status"] = "completed"
+        # Only set winner if battle is completed.
+        battle["winner"] = max(
+            battle["scores"],
+            key=battle["scores"].get
+        )
+    
+    return {
+        "model": model_name,
+        "reward": new_score - old_score,
+        "score": new_score,
+        "scores": battle["scores"],
+        "winner": battle["winner"]
+    }
+
+@app.get("/battle/{battle_id}/status")
+async def battle_status(battle_id: str):
+    if battle_id not in battles:
+        raise HTTPException(404, "Battle not found")
+    return battles[battle_id]
+
+@app.get("/battle/{battle_id}/result")
+async def battle_result(battle_id: str):
+    if battle_id not in battles:
+        raise HTTPException(404, "Battle not found")
+    battle = battles[battle_id]
+    return {
+        "battle_id": battle_id,
+        "winner": battle["winner"],
+        "final_scores": battle["scores"],
+        "steps": battle["steps"],
+        "status": battle["status"]
+    }
+
+@app.websocket("/battle/{battle_id}/ws")
+async def battle_websocket(
+    websocket: WebSocket,
+    battle_id: str
+):
+    await websocket.accept()
+    try:
+        while True:
+            await asyncio.sleep(1)
+            if battle_id in battles:
+                await websocket.send_json(
+                    battles[battle_id]
+                )
+    except Exception:
+        pass
+
 
 if __name__ == "__main__":
     import uvicorn
