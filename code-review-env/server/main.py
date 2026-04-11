@@ -197,7 +197,7 @@ async def health():
     return {"status": "ok", "openai_active": o_active, "gemini_active": g_active, "version": "1.1.0"}
 
 @app.post("/reset", response_model=ResetResult)
-async def reset(req: dict | None = Body(default=None), _ = Depends(get_api_key)):
+async def reset(req: dict | None = Body(default=None)):
     if req is None: req = {}
     task_name = req.get("task_name") or "easy_001"
     state["model_name"] = req.get("model_name") or "gemini-1.5-flash"
@@ -220,7 +220,7 @@ def compute_new_score() -> float:
     return grader.score_hard(state["comments_so_far"], state["ground_truth"])
 
 @app.post("/step", response_model=StepResult)
-async def step(payload: dict = Body(...), _ = Depends(get_api_key)):
+async def step(payload: dict = Body(...)):
     if not state["reset_called"] or not state["task_name"]: raise HTTPException(400, "Reset first")
     if state["episode_done"]: raise HTTPException(400, "Done")
     action = Action(**payload)
