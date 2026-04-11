@@ -17,7 +17,11 @@ import subprocess
 import sys
 
 # Third party
+from dotenv import load_dotenv
 from huggingface_hub import HfApi
+
+# Load .env so HF_TOKEN is available without setting it manually
+load_dotenv()
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -52,9 +56,9 @@ try:
         shell=True,  # Required on Windows
     )
     print(result.stdout)
-    print("✅ Dashboard build complete — dist/ folder ready.")
+    print("[OK] Dashboard build complete - dist/ folder ready.")
 except subprocess.CalledProcessError as e:
-    print(f"❌ Dashboard build failed:\n{e.stderr}")
+    print(f"[FAIL] Dashboard build failed:\n{e.stderr}")
     print("Proceeding with upload anyway (dist/ may already exist).")
 
 if not os.path.isdir(DIST_DIR):
@@ -97,12 +101,12 @@ for local_path, repo_path in ITEMS_TO_UPLOAD:
     repo_path = repo_path.replace("\\", "/")
 
     if not os.path.exists(local_path):
-        print(f"  ⚠️  Skipped (not found): {local_path}")
+        print(f"  [SKIP] Not found: {local_path}")
         continue
 
     if os.path.isfile(local_path):
         try:
-            print(f"  📄 Uploading file:   {local_path} → {repo_path}")
+            print(f"  [FILE] Uploading: {local_path} -> {repo_path}")
             api.upload_file(
                 path_or_fileobj=local_path,
                 path_in_repo=repo_path,
@@ -110,12 +114,12 @@ for local_path, repo_path in ITEMS_TO_UPLOAD:
                 repo_type="space",
             )
         except Exception as e:
-            print(f"  ❌ FAILED:  {local_path} — {e}")
+            print(f"  [FAIL] {local_path} - {e}")
             failed.append(local_path)
 
     elif os.path.isdir(local_path):
         try:
-            print(f"  📁 Uploading folder: {local_path} → {repo_path}")
+            print(f"  [DIR]  Uploading: {local_path} -> {repo_path}")
             api.upload_folder(
                 folder_path=local_path,
                 path_in_repo=repo_path,
@@ -124,7 +128,7 @@ for local_path, repo_path in ITEMS_TO_UPLOAD:
                 ignore_patterns=["*.pyc", "__pycache__*", "node_modules*", ".env"],
             )
         except Exception as e:
-            print(f"  ❌ FAILED:  {local_path} — {e}")
+            print(f"  [FAIL] {local_path} - {e}")
             failed.append(local_path)
 
 # ---------------------------------------------------------------------------
@@ -133,16 +137,16 @@ for local_path, repo_path in ITEMS_TO_UPLOAD:
 print()
 print("=" * 60)
 if failed:
-    print(f"⚠️  Deployment finished with {len(failed)} failure(s):")
+    print(f"[WARN] Deployment finished with {len(failed)} failure(s):")
     for f in failed:
         print(f"    - {f}")
 else:
-    print("✅ All files uploaded successfully!")
+    print("[OK] All files uploaded successfully!")
 
 print()
-print("🚀 Your live HuggingFace Space URL:")
-print(f"   https://huggingface.co/spaces/{REPO_ID}")
+print("Live HuggingFace Space URL:")
+print(f"  https://huggingface.co/spaces/{REPO_ID}")
 print()
-print("📋 Wait 2-3 minutes for HuggingFace to rebuild, then open:")
-print(f"   https://{REPO_ID.replace('/', '-')}.hf.space")
+print("Wait 2-3 minutes for HuggingFace to rebuild, then open:")
+print(f"  https://{REPO_ID.replace('/', '-')}.hf.space")
 print("=" * 60)
